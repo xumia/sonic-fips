@@ -42,6 +42,10 @@ jobs:
   - checkout: self
     submodules: true
   - script: |
+      cd src/Symcrypt
+      git submodule update --init -- jitterentropy-library
+    displayName: 'Checkout Symcrypt submodules'
+  - script: |
       sudo mkdir -p $HOME
       sudo pip3 install -r src/SymCrypt/scripts/requirements.txt
       make all
