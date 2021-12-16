@@ -7,8 +7,8 @@ Index: openssh/openbsd-compat/openssl-compat.c
  #endif
  
 +#ifdef USE_SYMCRYPT_ENGINE
-+	int SC_OSSL_ENGINE_Initialize();
-+	SC_OSSL_ENGINE_Initialize();
++	int SCOSSL_ENGINE_Initialize();
++	SCOSSL_ENGINE_Initialize();
 +#else
  #ifdef	USE_OPENSSL_ENGINE
  	/* Enable use of crypto hardware */
@@ -42,7 +42,7 @@ Index: openssh/log.c
  }
  
 +#if defined(USE_SYMCRYPT_ENGINE)
-+void SC_OSSL_ENGINE_set_trace_level(int trace_level);
++void SCOSSL_ENGINE_set_trace_level(int trace_level);
 +
 +void
 +symcrypt_engine_log_init(void)
@@ -69,7 +69,7 @@ Index: openssh/log.c
 +                default:
 +                        trace_level = 2;
 +        }
-+        SC_OSSL_ENGINE_set_trace_level(trace_level);
++        SCOSSL_ENGINE_set_trace_level(trace_level);
 +}
 +#endif
 +
