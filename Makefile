@@ -7,7 +7,7 @@ ARCH ?= amd64
 ROOT := $(shell pwd)
 SYMCRYPT_OPENSSL := target/symcrypt-openssl_0.1_amd64.deb
 OPENSSH := target/ssh_8.4p1-5+fips_all.deb
-GOLANG := target/golang-1.15-go_1.15.15-1~deb11u1+fips_amd64.deb
+GOLANG := target/golang-1.15-go_1.15.15-1~deb11u2+fips_amd64.deb
 PYTHON := target/python3.9_3.9.2-1+fips_amd64.deb
 
 DEPNEDS := $(SYMCRYPT_OPENSSL) $(OPENSSH) $(GOLANG) $(PYTHON)
