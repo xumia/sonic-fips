@@ -19,7 +19,7 @@ QUILT_REFRESH_ARGS="-p ab --no-timestamps --no-index"
 include $(RULES_PATH)/*.mk
 
 # Export environments
-export SYMCRYPT_OPENSSL
+export SYMCRYPT_OPENSSL_VERSION
 export QUILT_REFRESH_ARGS
 export ARCH
 export DEST
@@ -36,22 +36,24 @@ $(addprefix $(TARGET_PATH)/, $(MAIN_TARGETS)) : $(TARGET_PATH)/% : $$(addprefix 
 	# Remove target to force rebuild
 	rm -f $(addprefix $(TARGET_PATH)/, $*)
 	# Run pre script
-	if [ -n "$($*_PRE_SCRIPT)" ]; then $($*_PRE_SCRIPT); fi
+	if [ -n "$($*_PRE_SCRIPT)" ]; then :;$($*_PRE_SCRIPT) fi
 	# Copy debian folder
 	if [ -n "$($*_DEBIAN)" ]; then mkdir -p $($*_SRC_PATH)/debian; cp $($*_DEBIAN)/* -rf $($*_SRC_PATH)/debian/; fi
 	# Apply series of patches if exist
 	if [ -f $($*_SRC_PATH).patch/series ]; then pushd $($*_SRC_PATH) && QUILT_PATCHES=../$(notdir $($*_SRC_PATH)).patch quilt push -a; popd; fi
-	if [ -f $($*_MAKEFILE) ]; then
+	if [ -n "$($*_PATCH_EXT)" ]; then pushd $($*_SRC_PATH); [ -d .pc ] && mv .pc .pc2; QUILT_PATCHES=$($*_PATCH_EXT) quilt push -a; popd; fi
+	if [ -n "$($*_MAKEFILE)" ]; then
 	  $($*_BUILD_OPTIONS) make -C $($*_SRC_PATH) -f $($*_MAKEFILE) $(DEST)/$*
 	elif [ -f $($*_SRC_PATH)/debian/control ]; then
 	  pushd $($*_SRC_PATH)
 	  # Fix Misc/NEWS not found issue for python
 	  if [ "$*" == python3* ]; then touch Misc/NEWS; fi
-	  $($*_BUILD_OPTIONS) dpkg-buildpackage -b -rfakeroot -us -uc
+	  $($*_BUILD_OPTIONS) dpkg-buildpackage -b -d -rfakeroot -us -uc
 	  popd
+	  mkdir -p $(DEST)
+	  mv -f $(addprefix $($*_SRC_PATH)/../, $* $($*_DERIVED_DEBS)) $(DEST)/
 	else
 	  error "Do not know how to make $(TARGET_PATH)/$*"
 	fi
+	if [ -n "$($*_PATCH_EXT)" ]; then pushd $($*_SRC_PATH) && quilt pop -a f; [ -d .pc ] && rm -rf .pc; [ -d .pc2 ] && mv .pc2 .pc; popd; fi
 	if [ -f $($*_SRC_PATH).patch/series ]; then pushd $($*_SRC_PATH) && quilt pop -a -f; [ -d .pc ] && rm -rf .pc; popd; fi
-	mkdir -p $(DEST)
-	mv -f $(addprefix $($*_SRC_PATH)/../, $* $($*_DERIVED_DEBS)) $(DEST)/
