@@ -3,56 +3,55 @@ SHELL = /bin/bash
 .SHELLFLAGS += -e
 
 ARCH ?= amd64
-
+SRC_PATH = src
+RULES_PATH = rules
+TARGET_PATH = target
 ROOT := $(shell pwd)
+DEST = $(ROOT)/$(TARGET_PATH)
+
 SYMCRYPT_OPENSSL := target/symcrypt-openssl_0.1_$(ARCH).deb
 OPENSSH := target/ssh_8.4p1-5+fips_all.deb
 GOLANG := target/golang-1.15-go_1.15.15-1~deb11u2+fips_$(ARCH).deb
 PYTHON := target/python3.9_3.9.2-1+fips_$(ARCH).deb
+QUILT_REFRESH_ARGS="-p ab --no-timestamps --no-index"
+.SECONDEXPANSION:
+
+include $(RULES_PATH)/*.mk
+
+# Export environments
+export SYMCRYPT_OPENSSL
+export QUILT_REFRESH_ARGS
+export ARCH
+export DEST
 
 DEPNEDS := $(SYMCRYPT_OPENSSL) $(OPENSSH) $(GOLANG) $(PYTHON)
+MAIN_TARGET_LIST = $(addprefix $(TARGET_PATH)/, $(MAIN_TARGETS))
 
-all: $(DEPNEDS)
+all: $(MAIN_TARGET_LIST)
 
-$(SYMCRYPT_OPENSSL):
-	cd src/SymCrypt-OpenSSL-Debian
-	ARCH=$(ARCH) make all
+list:
+	@$(foreach target,$(MAIN_TARGET_LIST),echo $(target);)
 
-$(OPENSSH): $(SYMCRYPT_OPENSSL)
-	sudo dpkg -i $(SYMCRYPT_OPENSSL)
-	cd src/openssh
-	export QUILT_PATCHES=../openssh.patch
-	export QUILT_REFRESH_ARGS="-p ab --no-timestamps --no-index"
-	quilt push -a
-	LIBS="-lsymcryptengine -lsymcrypt -lcrypto -lssl -ledit" DEB_BUILD_PROFILES="noudeb" DEB_BUILD_OPTIONS="nocheck nostrip"  DEB_CFLAGS_APPEND="-DUSE_SYMCRYPT_ENGINE"  dpkg-buildpackage -b -rfakeroot -us -uc
-	quilt pop -a
-	cp ../*.deb $(ROOT)/target
-	rm ../*.deb
-
-$(GOLANG):
-	cd src/golang
-	rm -rf debian
-	cp -rf ../golang-debian/debian debian
-	export QUILT_PATCHES=../golang.patch
-	export QUILT_REFRESH_ARGS="-p ab --no-timestamps --no-index"
-	quilt push -a
-	dpkg-buildpackage -b -rfakeroot -us -uc
-	cp ../*.deb $(ROOT)/target
-	rm ../*.deb
-
-$(PYTHON):
-	cd src/cpython
-	rm -rf debian
-	cp -rf ../python3/debian debian
-	export QUILT_PATCHES=debian/patches
-	export QUILT_REFRESH_ARGS="-p ab --no-timestamps --no-index"
-	quilt push -a
-	rm -rf .pc
-	export QUILT_PATCHES=../cpython.patch
-	quilt push -a
-
-	# Fix Misc/NEWS not found issue
-	touch Misc/NEWS
-	dpkg-buildpackage -b -d -rfakeroot -us -uc
-	cp ../*.deb $(ROOT)/target
-	rm ../*.deb
+$(addprefix $(TARGET_PATH)/, $(MAIN_TARGETS)) : $(TARGET_PATH)/% : $$(addprefix $(TARGET_PATH)/,$$($$*_DEPENDS))
+	# Remove target to force rebuild
+	rm -f $(addprefix $(TARGET_PATH)/, $*)
+	# Run pre script
+	if [ -n "$($*_PRE_SCRIPT)" ]; then $($*_PRE_SCRIPT); fi
+	# Copy debian folder
+	if [ -n "$($*_DEBIAN)" ]; then mkdir -p $($*_SRC_PATH)/debian; cp $($*_DEBIAN)/* -rf $($*_SRC_PATH)/debian/; fi
+	# Apply series of patches if exist
+	if [ -f $($*_SRC_PATH).patch/series ]; then pushd $($*_SRC_PATH) && QUILT_PATCHES=../$(notdir $($*_SRC_PATH)).patch quilt push -a; popd; fi
+	if [ -f $($*_MAKEFILE) ]; then
+	  $($*_BUILD_OPTIONS) make -C $($*_SRC_PATH) -f $($*_MAKEFILE) $(DEST)/$*
+	elif [ -f $($*_SRC_PATH)/debian/control ]; then
+	  pushd $($*_SRC_PATH)
+	  # Fix Misc/NEWS not found issue for python
+	  if [ "$*" == python3* ]; then touch Misc/NEWS; fi
+	  $($*_BUILD_OPTIONS) dpkg-buildpackage -b -rfakeroot -us -uc
+	  popd
+	else
+	  error "Do not know how to make $(TARGET_PATH)/$*"
+	fi
+	if [ -f $($*_SRC_PATH).patch/series ]; then pushd $($*_SRC_PATH) && quilt pop -a -f; [ -d .pc ] && rm -rf .pc; popd; fi
+	mkdir -p $(DEST)
+	mv -f $(addprefix $($*_SRC_PATH)/../, $* $($*_DERIVED_DEBS)) $(DEST)/
