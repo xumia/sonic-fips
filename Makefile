@@ -55,6 +55,5 @@ $(addprefix $(TARGET_PATH)/, $(MAIN_TARGETS)) : $(TARGET_PATH)/% : $$(addprefix 
 	else
 	  error "Do not know how to make $(TARGET_PATH)/$*"
 	fi
-	if [ -n "$($*_PATCH_EXT)" ]; then pushd $($*_SRC_PATH) && quilt pop -a f; [ -d .pc ] && rm -rf .pc; [ -d .pc2 ] && mv .pc2 .pc; popd; fi
-	if [ -f $($*_SRC_PATH).patch/series ]; then pushd $($*_SRC_PATH) && quilt pop -a -f; [ -d .pc ] && rm -rf .pc; popd; fi
-	exit 0
+	if [ -n "$($*_PATCH_EXT)" ]; then pushd $($*_SRC_PATH) && quilt pop -a -f; [ -d .pc ] && rm -rf .pc; [ -d .pc2 ] && mv .pc2 .pc; popd; fi || true
+	if [ -f $($*_SRC_PATH).patch/series ]; then pushd $($*_SRC_PATH) && quilt pop -a -f; [ -d .pc ] && rm -rf .pc; popd; fi || true
