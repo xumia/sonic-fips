@@ -46,8 +46,12 @@ $(addprefix $(TARGET_PATH)/, $(MAIN_TARGETS)) : $(TARGET_PATH)/% : $$(addprefix 
 	  $($*_BUILD_OPTIONS) make -C $($*_SRC_PATH) -f $($*_MAKEFILE) $(DEST)/$*
 	elif [ -f $($*_SRC_PATH)/debian/control ]; then
 	  pushd $($*_SRC_PATH)
+	  VERSION=$$(dpkg-parsechangelog --show-field Version)
+	  if [[ "$*" == *+fips_* ]] && [[ "$$VERSION" != *+fips ]]; then
+	    sed -i "s/$$VERSION/$$VERSION+fips/" debian/changelog
+	  fi
 	  # Fix Misc/NEWS not found issue for python
-	  if [ "$*" == python3* ]; then touch Misc/NEWS; fi
+	  if [[ "$*" == python3* ]]; then touch Misc/NEWS; fi
 	  $($*_BUILD_OPTIONS) dpkg-buildpackage -b -d -rfakeroot -us -uc
 	  popd
 	  mkdir -p $(DEST)
