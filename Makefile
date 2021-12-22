@@ -57,3 +57,4 @@ $(addprefix $(TARGET_PATH)/, $(MAIN_TARGETS)) : $(TARGET_PATH)/% : $$(addprefix 
 	fi
 	if [ -n "$($*_PATCH_EXT)" ]; then pushd $($*_SRC_PATH) && quilt pop -a f; [ -d .pc ] && rm -rf .pc; [ -d .pc2 ] && mv .pc2 .pc; popd; fi
 	if [ -f $($*_SRC_PATH).patch/series ]; then pushd $($*_SRC_PATH) && quilt pop -a -f; [ -d .pc ] && rm -rf .pc; popd; fi
+	exit 0
