@@ -3,8 +3,19 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
+schedules:
+- cron: "0 0 * * 0"
+  displayName: Weekly midnight build
+  branches:
+    include:
+    - main
+  always: true
+
 trigger: none
-pr: none
+pr:
+  branches:
+    include:
+      - main
 
 jobs:
 - template: .azure-pipelins/build-template.yml
