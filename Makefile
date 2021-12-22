@@ -5,10 +5,10 @@ SHELL = /bin/bash
 ARCH ?= amd64
 
 ROOT := $(shell pwd)
-SYMCRYPT_OPENSSL := target/symcrypt-openssl_0.1_amd64.deb
+SYMCRYPT_OPENSSL := target/symcrypt-openssl_0.1_$(ARCH).deb
 OPENSSH := target/ssh_8.4p1-5+fips_all.deb
-GOLANG := target/golang-1.15-go_1.15.15-1~deb11u2+fips_amd64.deb
-PYTHON := target/python3.9_3.9.2-1+fips_amd64.deb
+GOLANG := target/golang-1.15-go_1.15.15-1~deb11u2+fips_$(ARCH).deb
+PYTHON := target/python3.9_3.9.2-1+fips_$(ARCH).deb
 
 DEPNEDS := $(SYMCRYPT_OPENSSL) $(OPENSSH) $(GOLANG) $(PYTHON)
 
@@ -19,7 +19,7 @@ $(SYMCRYPT_OPENSSL):
 	ARCH=$(ARCH) make all
 
 $(OPENSSH): $(SYMCRYPT_OPENSSL)
-	sudo dpkg -i target/symcrypt-openssl_0.1_amd64.deb
+	sudo dpkg -i $(SYMCRYPT_OPENSSL)
 	cd src/openssh
 	export QUILT_PATCHES=../openssh.patch
 	export QUILT_REFRESH_ARGS="-p ab --no-timestamps --no-index"
