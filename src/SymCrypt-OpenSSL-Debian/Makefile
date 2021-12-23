@@ -4,8 +4,8 @@ SHELL = /bin/bash
 
 ARCH ?= amd64
 BUILD_NAME = symcrypt-openssl
-BUILD_VERSION = 0.1
-SYMCRYPT_PACKAGE = $(BUILD_NAME)_$(BUILD_VERSION)_$(ARCH).deb
+SYMCRYPT_OPENSSL_VERSION ?= 0.1
+SYMCRYPT_PACKAGE = $(BUILD_NAME)_$(SYMCRYPT_OPENSSL_VERSION)_$(ARCH).deb
 BUILD_ROOT_DIR = tmp/$(BUILD_NAME)
 
 CMAKE_ARCH = AMD64
@@ -18,19 +18,21 @@ CMAKE_ARCH = ARMHF
 LIB_INSTALL_NAME = arm-linux-gnueabihf 
 endif
 
-# TODO: Support arm64 and armhf
 INSTALL_PATH = $(BUILD_ROOT_DIR)/usr/lib/$(LIB_INSTALL_NAME)
 DEBIAN_DIR = $(BUILD_ROOT_DIR)/DEBIAN
 
 ROOT_PATH = $(shell realpath $(shell pwd)/../..)
-TARGET_PATH = $(ROOT_PATH)/target
-LIBSYMCRYPT = $(TARGET_PATH)/libsymcrypt.so
-LIBSYMCRYPTENGINE = $(TARGET_PATH)/libsymcryptengine.so
-TARGET = $(TARGET_PATH)/$(SYMCRYPT_PACKAGE)
+DEST ?= $(ROOT_PATH)/target
+LIBSYMCRYPT = $(DEST)/libsymcrypt.so
+LIBSYMCRYPTENGINE = $(DEST)/libsymcryptengine.so
+TARGET = $(DEST)/$(SYMCRYPT_PACKAGE)
 
 DEPENDS := $(LIBSYMCRYPT) $(LIBSYMCRYPTENGINE)
 
 all: $(TARGET)
+
+list:
+	@$(foreach target,$(DEPENDS) $(TARGET),echo $(target);)
 
 $(LIBSYMCRYPT):
 	cd ../SymCrypt
@@ -38,7 +40,7 @@ $(LIBSYMCRYPT):
 	cd bin
 	cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake-toolchain/LinuxUserMode-$(CMAKE_ARCH).cmake
 	cmake --build .
-	mkdir -p $(TARGET_PATH)
+	mkdir -p $(DEST)
 	cp module/$(CMAKE_ARCH)/LinuxUserMode/generic_linux/libsymcrypt.so $(LIBSYMCRYPT)
 
 $(LIBSYMCRYPTENGINE): $(LIBSYMCRYPT)

@@ -17,16 +17,3 @@ Index: cpython/Modules/_ssl.c
  
  #ifdef HAVE_OPENSSL_CRYPTO_LOCK
      /* note that this will start threading if not already started */
-Index: cpython/debian/changelog
-===================================================================
---- cpython.orig/debian/changelog
-+++ cpython/debian/changelog
-@@ -1,3 +1,8 @@
-+python3.9 (3.9.2-1+fips) unstable; urgency=medium
-+
-+  * Support symcrypt engine
-+
-+
- python3.9 (3.9.2-1) unstable; urgency=medium
- 
-   * Python 3.9.2 release. No changes since 3.9.2~rc1-1.
