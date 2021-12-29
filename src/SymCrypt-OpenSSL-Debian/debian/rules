@@ -1,0 +1,38 @@
+#!/usr/bin/make -f
+
+ARCH ?= amd64
+pn = symcrypt-openssl
+pn_dbg = $(pn)-dbg
+
+LIB_INSTALL_NAME = x86_64-linux-gnu
+ifeq ($(ARCH), arm64)
+CMAKE_ARCH = ARM64
+LIB_INSTALL_NAME = aarch64-linux-gnu
+else ifeq ($(ARCH), armhf)
+CMAKE_ARCH = ARMHF
+LIB_INSTALL_NAME = arm-linux-gnueabihf 
+endif
+
+DEST ?= ../../target
+LIBSYMCRYPT = $(DEST)/libsymcrypt.so
+LIBSYMCRYPTENGINE = $(DEST)/libsymcryptengine.so
+
+clean:
+	rm debian/symcrypt-openssl -rf
+	rm debian/symcrypt-openssl-dbg -rf
+
+build:
+	mkdir -p debian/symcrypt-openssl/usr/lib/$(LIB_INSTALL_NAME)
+	mkdir -p debian/symcrypt-openssl/usr/lib/ssl
+	cp $(LIBSYMCRYPT) $(LIBSYMCRYPTENGINE) debian/symcrypt-openssl/usr/lib/$(LIB_INSTALL_NAME)/
+	cp openssl.cnf debian/symcrypt-openssl/usr/lib/ssl/symcrypt-openssl.cnf
+
+install: build
+	dh_installdeb
+
+binary-arch: build install
+	dh_strip -a -N$(pn_dbg) -Xdebug -Xdbg --dbg-package=$(pn_dbg)
+
+binary: binary-arch
+	dh_gencontrol
+	dh_builddeb
