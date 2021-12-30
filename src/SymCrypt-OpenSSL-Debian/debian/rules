@@ -39,6 +39,7 @@ $(LIBSYMCRYPT):
 
 $(LIBSYMCRYPTENGINE): $(LIBSYMCRYPT)
 	cp $(LIBSYMCRYPT) ../SymCrypt-OpenSSL/
+	ln -sf $(shell pwd)/../SymCrypt ~/SymCrypt
 	mkdir -p bin_eng
 	cd bin_eng
 	cmake ../../SymCrypt-OpenSSL -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=../../SymCrypt-OpenSSL/cmake-toolchain/LinuxUserMode-$(CMAKE_ARCH).cmake
