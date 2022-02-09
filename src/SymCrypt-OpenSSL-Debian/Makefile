@@ -24,7 +24,7 @@ DEBIAN_DIR = $(BUILD_ROOT_DIR)/DEBIAN
 ROOT_PATH = $(shell realpath $(shell pwd)/../..)
 DEST ?= $(ROOT_PATH)/target
 LIBSYMCRYPT = $(DEST)/libsymcrypt.so
-LIBSYMCRYPTENGINE = $(DEST)/libsymcryptengine.so
+LIBSYMCRYPTENGINE = $(DEST)/symcryptengine.so
 TARGET = $(DEST)/$(SYMCRYPT_PACKAGE)
 
 DEPENDS := $(LIBSYMCRYPT) $(LIBSYMCRYPTENGINE)
@@ -51,7 +51,7 @@ $(LIBSYMCRYPTENGINE): $(LIBSYMCRYPT)
 	cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake-toolchain/LinuxUserMode-$(CMAKE_ARCH).cmake -DSYMCRYPT_ROOT_DIR=$(ROOT_PATH)/src/SymCrypt
 	cmake --build .
 	rm ../libsymcrypt.so
-	cp SymCryptEngine/dynamic/libsymcryptengine.so $(LIBSYMCRYPTENGINE)
+	cp SymCryptEngine/dynamic/symcryptengine.so $(LIBSYMCRYPTENGINE)
 
 $(TARGET): $(DEPENDS)
 	mkdir -p $(INSTALL_PATH)
