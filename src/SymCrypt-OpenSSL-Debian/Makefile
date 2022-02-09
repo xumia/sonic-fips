@@ -24,7 +24,7 @@ DEBIAN_DIR = $(BUILD_ROOT_DIR)/DEBIAN
 ROOT_PATH = $(shell realpath $(shell pwd)/../..)
 DEST ?= $(ROOT_PATH)/target
 LIBSYMCRYPT = $(DEST)/libsymcrypt.so
-LIBSYMCRYPTENGINE = $(DEST)/symcryptengine.so
+LIBSYMCRYPTENGINE = $(DEST)/libsymcryptengine.so
 TARGET = $(DEST)/$(SYMCRYPT_PACKAGE)
 
 DEPENDS := $(LIBSYMCRYPT) $(LIBSYMCRYPTENGINE)
