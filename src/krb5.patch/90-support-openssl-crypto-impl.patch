@@ -1,0 +1,12 @@
+diff --git a/debian/rules b/debian/rules
+index 915528050..cbf03a206 100755
+--- a/debian/rules
++++ b/debian/rules
+@@ -45,6 +45,7 @@ override_dh_auto_configure:
+ 	--with-system-verto \
+ 		--libdir=\$${prefix}/lib/$(DEB_HOST_MULTIARCH) \
+ 		--sysconfdir=/etc  \
++		--with-crypto-impl=openssl \
+ 		--localstatedir=/etc
+ 
+ override_dh_auto_build:
