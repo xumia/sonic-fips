@@ -40,8 +40,8 @@ $(addprefix $(TARGET_PATH)/, $(MAIN_TARGETS)) : $(TARGET_PATH)/% : $$(addprefix 
 	# Copy debian folder
 	if [ -n "$($*_DEBIAN)" ]; then mkdir -p $($*_SRC_PATH)/debian; cp $($*_DEBIAN)/* -rf $($*_SRC_PATH)/debian/; fi
 	# Apply series of patches if exist
-	if [ -f $($*_SRC_PATH).patch/series ]; then pushd $($*_SRC_PATH) && QUILT_PATCHES=../$(notdir $($*_SRC_PATH)).patch quilt push -a; popd; fi
-	if [ -n "$($*_PATCH_EXT)" ]; then pushd $($*_SRC_PATH); [ -d .pc ] && mv .pc .pc2; QUILT_PATCHES=$($*_PATCH_EXT) quilt push -a; popd; fi
+	if [ -f $($*_SRC_PATH).patch/series ]; then pushd $($*_SRC_PATH) && QUILT_PATCHES=../$(notdir $($*_SRC_PATH)).patch quilt push -a && mv .pc .pc1; popd; fi
+	if [ -n "$($*_PATCH_EXT)" ]; then pushd $($*_SRC_PATH); QUILT_PATCHES=$($*_PATCH_EXT) quilt push -a && mv .pc .pc2; popd; fi
 	if [ -n "$($*_MAKEFILE)" ]; then
 	  $($*_BUILD_OPTIONS) make -C $($*_SRC_PATH) -f $($*_MAKEFILE) $(DEST)/$*
 	elif [ -f $($*_SRC_PATH)/debian/control ]; then
@@ -59,5 +59,5 @@ $(addprefix $(TARGET_PATH)/, $(MAIN_TARGETS)) : $(TARGET_PATH)/% : $$(addprefix 
 	else
 	  error "Do not know how to make $(TARGET_PATH)/$*"
 	fi
-	if [ -n "$($*_PATCH_EXT)" ]; then pushd $($*_SRC_PATH) && quilt pop -a -f; [ -d .pc ] && rm -rf .pc; [ -d .pc2 ] && mv .pc2 .pc; popd; fi || true
-	if [ -f $($*_SRC_PATH).patch/series ]; then pushd $($*_SRC_PATH) && quilt pop -a -f; [ -d .pc ] && rm -rf .pc; popd; fi || true
+	if [ -n "$($*_PATCH_EXT)" ]; then pushd $($*_SRC_PATH) && rm -rf .pc && mv .pc2 .pc && quilt pop -a -f; [ -d .pc ] && rm -rf .pc; popd; fi || true
+	if [ -f $($*_SRC_PATH).patch/series ]; then pushd $($*_SRC_PATH) && rm -rf .pc && mv .pc1 .pc && quilt pop -a -f; [ -d .pc ] && rm -rf .pc; popd; fi || true
