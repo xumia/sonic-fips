@@ -1,8 +1,8 @@
 diff --git a/crypto/init.c b/crypto/init.c
-index 1b0d523bea..3bc4201498 100644
+index 1b0d523bea..3a00259fef 100644
 --- a/crypto/init.c
 +++ b/crypto/init.c
-@@ -612,6 +612,66 @@ void OPENSSL_cleanup(void)
+@@ -612,6 +612,70 @@ void OPENSSL_cleanup(void)
      base_inited = 0;
  }
  
@@ -21,6 +21,10 @@ index 1b0d523bea..3bc4201498 100644
 +        int i = 0;
 +        while( token != NULL ) {
 +            if (strcmp(token, "fips=1") == 0){
++                enabled = 1;
++                break;
++            }
++            if (strcmp(token, "sonic_fips=1") == 0){
 +                enabled = 1;
 +                break;
 +            }
@@ -69,7 +73,7 @@ index 1b0d523bea..3bc4201498 100644
  /*
   * If this function is called with a non NULL settings value then it must be
   * called prior to any threads making calls to any OpenSSL functions,
-@@ -625,6 +685,11 @@ int OPENSSL_init_crypto(uint64_t opts, const OPENSSL_INIT_SETTINGS *settings)
+@@ -625,6 +689,11 @@ int OPENSSL_init_crypto(uint64_t opts, const OPENSSL_INIT_SETTINGS *settings)
          return 0;
      }
  
