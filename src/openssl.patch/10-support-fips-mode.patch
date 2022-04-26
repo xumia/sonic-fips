@@ -1,5 +1,5 @@
 diff --git a/crypto/init.c b/crypto/init.c
-index 1b0d523bea..3a00259fef 100644
+index 1b0d523bea..af171bda16 100644
 --- a/crypto/init.c
 +++ b/crypto/init.c
 @@ -612,6 +612,70 @@ void OPENSSL_cleanup(void)
@@ -9,16 +9,16 @@ index 1b0d523bea..3a00259fef 100644
 +#define BUZZ_SIZE 4096
 +#define PROC_CMDLINE "/proc/cmdline"
 +#define FIPS_ENABLE_CONF "/etc/fips/fips_enable"
-+int g_fips_mode_enabled = 0;
++#define FIPS_OPENSSL_CONFIG "/usr/lib/ssl/openssl-fips.cnf"
++int g_fips_mode_enabled = -1;
 +// Check if the fips is enabled by command line
 +int ossl_fips_enabled_by_cmd(){
 +    int enabled = 0;
 +    FILE * fp = NULL;
 +    char buff[BUZZ_SIZE] = "";
-+    if(fp = fopen (PROC_CMDLINE, "r")){
++    if((fp = fopen(PROC_CMDLINE, "r")) != NULL){
 +        fgets(buff, BUZZ_SIZE, fp);
 +        char * token = strtok(buff, " \n");
-+        int i = 0;
 +        while( token != NULL ) {
 +            if (strcmp(token, "fips=1") == 0){
 +                enabled = 1;
@@ -42,7 +42,7 @@ index 1b0d523bea..3a00259fef 100644
 +    int enabled = 0;
 +    FILE * fp = NULL;
 +    char buff[BUZZ_SIZE] = "";
-+    if(fp = fopen (FIPS_ENABLE_CONF, "r")){
++    if((fp = fopen(FIPS_ENABLE_CONF, "r")) != NULL ){
 +        fgets(buff, BUZZ_SIZE, fp);
 +        if (strlen(buff) > 0 && buff[0] == '1') {
 +            enabled = 1;
@@ -73,20 +73,22 @@ index 1b0d523bea..3a00259fef 100644
  /*
   * If this function is called with a non NULL settings value then it must be
   * called prior to any threads making calls to any OpenSSL functions,
-@@ -625,6 +689,11 @@ int OPENSSL_init_crypto(uint64_t opts, const OPENSSL_INIT_SETTINGS *settings)
+@@ -625,6 +689,13 @@ int OPENSSL_init_crypto(uint64_t opts, const OPENSSL_INIT_SETTINGS *settings)
          return 0;
      }
  
-+    int fips_enabled = ossl_fips_enabled();
-+    if (fips_enabled) {
-+        opts |= OPENSSL_INIT_LOAD_CONFIG;
++    if (g_fips_mode_enabled == -1) {
++        int fips_enabled = ossl_fips_enabled();
++        if (fips_enabled) {
++            setenv("OPENSSL_CONF", FIPS_OPENSSL_CONFIG, 1);
++        }
 +    }
 +
      /*
       * When the caller specifies OPENSSL_INIT_BASE_ONLY, that should be the
       * *only* option specified.  With that option we return immediately after
 diff --git a/crypto/o_fips.c b/crypto/o_fips.c
-index 050ea9c216..89a82b55fc 100644
+index 050ea9c216..6e9ffdb1d9 100644
 --- a/crypto/o_fips.c
 +++ b/crypto/o_fips.c
 @@ -9,8 +9,12 @@
@@ -96,7 +98,7 @@ index 050ea9c216..89a82b55fc 100644
 +extern int g_fips_mode_enabled;
  int FIPS_mode(void)
  {
-+    if (g_fips_mode_enabled != 0){
++    if (g_fips_mode_enabled == 1){
 +        return g_fips_mode_enabled;
 +    }
      /* This version of the library does not support FIPS mode. */
