@@ -3,6 +3,7 @@ SHELL = /bin/bash
 .SHELLFLAGS += -e
 
 ARCH ?= amd64
+CMAKE_BUILD_TYPE ?= Release
 BUILD_NAME = symcrypt-openssl
 SYMCRYPT_OPENSSL_VERSION ?= 0.1
 SYMCRYPT_PACKAGE = $(BUILD_NAME)_$(SYMCRYPT_OPENSSL_VERSION)_$(ARCH).deb
@@ -38,17 +39,17 @@ $(LIBSYMCRYPT):
 	cd ../SymCrypt
 	mkdir -p bin
 	cd bin
-	cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake-toolchain/LinuxUserMode-$(CMAKE_ARCH).cmake
+	cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake-toolchain/LinuxUserMode-$(CMAKE_ARCH).cmake -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE)
 	cmake --build .
 	mkdir -p $(DEST)
-	cp module/$(CMAKE_ARCH)/LinuxUserMode/generic_linux/libsymcrypt.so $(LIBSYMCRYPT)
+	cp -a module/$(CMAKE_ARCH)/LinuxUserMode/generic/libsymcrypt.so* $(DEST)/
 
 $(LIBSYMCRYPTENGINE): $(LIBSYMCRYPT)
 	cd ../SymCrypt-OpenSSL
 	cp $(LIBSYMCRYPT) ./
 	mkdir -p bin
 	cd bin
-	cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake-toolchain/LinuxUserMode-$(CMAKE_ARCH).cmake -DSYMCRYPT_ROOT_DIR=$(ROOT_PATH)/src/SymCrypt
+	cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake-toolchain/LinuxUserMode-$(CMAKE_ARCH).cmake -DSYMCRYPT_ROOT_DIR=$(ROOT_PATH)/src/SymCrypt -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE)
 	cmake --build .
 	rm ../libsymcrypt.so
 	cp SymCryptEngine/dynamic/symcryptengine.so $(LIBSYMCRYPTENGINE)
@@ -57,9 +58,9 @@ $(TARGET): $(DEPENDS)
 	mkdir -p $(INSTALL_PATH)
 	mkdir -p $(DEBIAN_DIR)
 	mkdir -p $(BUILD_ROOT_DIR)/usr/lib/ssl
-	cp $(LIBSYMCRYPT) $(INSTALL_PATH)
+	cp -a $(DEST)/libsymcrypt.so* $(INSTALL_PATH)/
 	cp $(LIBSYMCRYPTENGINE) $(INSTALL_PATH)
 	chmod o+r $(INSTALL_PATH)/*
 	cp -rf debian/* $(DEBIAN_DIR)/
 	cp openssl.cnf $(BUILD_ROOT_DIR)/usr/lib/ssl/openssl-fips.cnf
-	dpkg-deb --build $(BUILD_ROOT_DIR) $(TARGET)
+	fakeroot dpkg-deb --build $(BUILD_ROOT_DIR) $(TARGET)
