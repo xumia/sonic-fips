@@ -84,19 +84,6 @@ index 2385105b8b..c0b792d903 100644
      "evpmac.txt", "evppbe.txt", "evppkey.txt", "evppkey_ecc.txt",
      "evpcase.txt", "evpccmcavs.txt" );
  
-diff --git a/test/recipes/80-test_ssl_new.t b/test/recipes/80-test_ssl_new.t
-index 81d8f59a70..f8783f0469 100644
---- a/test/recipes/80-test_ssl_new.t
-+++ b/test/recipes/80-test_ssl_new.t
-@@ -82,7 +82,7 @@ my %skip = (
-                     && disabled("tls1_2")) || $no_npn,
-   "10-resumption.conf" => disabled("tls1_1") || disabled("tls1_2"),
-   "11-dtls_resumption.conf" => disabled("dtls1") || disabled("dtls1_2"),
--  "12-ct.conf" => $no_tls || $no_ct || $no_ec,
-+  "12-ct.conf" => 1,
-   # We could run some of these tests without TLS 1.2 if we had a per-test
-   # disable instruction but that's a bizarre configuration not worth
-   # special-casing for.
 diff --git a/test/recipes/90-test_shlibload.t b/test/recipes/90-test_shlibload.t
 index 8372a61e88..383dd35581 100644
 --- a/test/recipes/90-test_shlibload.t
@@ -147,3 +134,27 @@ index 8372a61e88..383dd35581 100644
  
  sub shlib {
      my $lib = shift;
+diff --git a/test/recipes/30-test_evp_extra.t b/test/recipes/30-test_evp_extra.t
+deleted file mode 100644
+index 9a656b0bcb..0000000000
+--- a/test/recipes/30-test_evp_extra.t
++++ /dev/null
+@@ -1,18 +0,0 @@
+-#! /usr/bin/env perl
+-# Copyright 2015-2016 The OpenSSL Project Authors. All Rights Reserved.
+-#
+-# Licensed under the OpenSSL license (the "License").  You may not use
+-# this file except in compliance with the License.  You can obtain a copy
+-# in the file LICENSE in the source distribution or at
+-# https://www.openssl.org/source/license.html
+-
+-
+-use strict;
+-use warnings;
+-
+-use OpenSSL::Test;
+-
+-setup("test_evp_extra");
+-
+-plan tests => 1;
+-ok(run(test(["evp_extra_test"])), "running evp_extra_test");
