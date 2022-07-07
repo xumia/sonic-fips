@@ -71,19 +71,6 @@ index 03c96cde09..0000000000
 -
 -plan tests => 1;
 -ok(run(test(["enginetest"])), "running enginetest");
-diff --git a/test/recipes/30-test_evp.t b/test/recipes/30-test_evp.t
-index 2385105b8b..c0b792d903 100644
---- a/test/recipes/30-test_evp.t
-+++ b/test/recipes/30-test_evp.t
-@@ -14,7 +14,7 @@ use OpenSSL::Test qw/:DEFAULT data_file/;
- 
- setup("test_evp");
- 
--my @files = ( "evpciph.txt", "evpdigest.txt", "evpencod.txt", "evpkdf.txt",
-+my @files = ( "evpdigest.txt", "evpencod.txt", "evpkdf.txt",
-     "evpmac.txt", "evppbe.txt", "evppkey.txt", "evppkey_ecc.txt",
-     "evpcase.txt", "evpccmcavs.txt" );
- 
 diff --git a/test/recipes/90-test_shlibload.t b/test/recipes/90-test_shlibload.t
 index 8372a61e88..383dd35581 100644
 --- a/test/recipes/90-test_shlibload.t
