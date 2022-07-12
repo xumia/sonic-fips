@@ -47,30 +47,6 @@ index 9271dba042..255bbbe240 100644
  
  my $cleartext = data_file("plain_text");
  
-diff --git a/test/recipes/30-test_engine.t b/test/recipes/30-test_engine.t
-deleted file mode 100644
-index 03c96cde09..0000000000
---- a/test/recipes/30-test_engine.t
-+++ /dev/null
-@@ -1,18 +0,0 @@
--#! /usr/bin/env perl
--# Copyright 2015-2016 The OpenSSL Project Authors. All Rights Reserved.
--#
--# Licensed under the OpenSSL license (the "License").  You may not use
--# this file except in compliance with the License.  You can obtain a copy
--# in the file LICENSE in the source distribution or at
--# https://www.openssl.org/source/license.html
--
--
--use strict;
--use warnings;
--
--use OpenSSL::Test;
--
--setup("test_engine");
--
--plan tests => 1;
--ok(run(test(["enginetest"])), "running enginetest");
 diff --git a/test/recipes/90-test_shlibload.t b/test/recipes/90-test_shlibload.t
 index 8372a61e88..383dd35581 100644
 --- a/test/recipes/90-test_shlibload.t
