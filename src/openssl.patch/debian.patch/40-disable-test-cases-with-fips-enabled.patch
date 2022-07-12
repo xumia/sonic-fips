@@ -145,3 +145,26 @@ index 9a656b0bcb..0000000000
 -
 -plan tests => 1;
 -ok(run(test(["evp_extra_test"])), "running evp_extra_test");
+diff --git a/test/recipes/90-test_includes.t b/test/recipes/90-test_includes.t
+index c6a86fc009..8db1d024f2 100644
+--- a/test/recipes/90-test_includes.t
++++ b/test/recipes/90-test_includes.t
+@@ -11,13 +11,13 @@ plan skip_all => "test_includes doesn't work without posix-io"
+     if disabled("posix-io");
+ 
+ plan tests =>                   # The number of tests being performed
+-    5
++    1
+     + ($^O eq "VMS" ? 2 : 0);
+ 
+-ok(run(test(["conf_include_test", data_file("includes.cnf")])), "test directory includes");
+-ok(run(test(["conf_include_test", data_file("includes-file.cnf")])), "test file includes");
+-ok(run(test(["conf_include_test", data_file("includes-eq.cnf")])), "test includes with equal character");
+-ok(run(test(["conf_include_test", data_file("includes-eq-ws.cnf")])), "test includes with equal and whitespaces");
++#ok(run(test(["conf_include_test", data_file("includes.cnf")])), "test directory includes");
++#ok(run(test(["conf_include_test", data_file("includes-file.cnf")])), "test file includes");
++#ok(run(test(["conf_include_test", data_file("includes-eq.cnf")])), "test includes with equal character");
++#ok(run(test(["conf_include_test", data_file("includes-eq-ws.cnf")])), "test includes with equal and whitespaces");
+ if ($^O eq "VMS") {
+     ok(run(test(["conf_include_test", data_file("vms-includes.cnf")])),
+        "test directory includes, VMS syntax");
