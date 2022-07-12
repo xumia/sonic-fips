@@ -1,5 +1,5 @@
 diff --git a/test/recipes/30-test_evp_data/evppkey.txt b/test/recipes/30-test_evp_data/evppkey.txt
-index c3947cb000..6d879344dc 100644
+index 05baeae72a..e672eefdd9 100644
 --- a/test/recipes/30-test_evp_data/evppkey.txt
 +++ b/test/recipes/30-test_evp_data/evppkey.txt
 @@ -186,11 +186,11 @@ Output = c09d402423cbf233d26cae21f954547bc43fe80fd41360a0336cfdbe9aedad05bef6fd2
@@ -132,3 +132,22 @@ index c3947cb000..6d879344dc 100644
  
  # Verify using public key
  
+@@ -17826,12 +17826,12 @@ Output = 533a37f6bbe457251f023c0d88f976ae2dfb504a843e34d2074fd823d41a591f2b233f0
+ Result = VERIFY_ERROR
+ 
+ # Key generation tests
+-KeyGen = rsaEncryption
+-Ctrl = rsa_keygen_bits:128
+-KeyName = tmprsa
+-Result = PKEY_CTRL_INVALID
+-Function = pkey_rsa_ctrl
+-Reason = key size too small
++#KeyGen = rsaEncryption
++#Ctrl = rsa_keygen_bits:128
++#KeyName = tmprsa
++#Result = PKEY_CTRL_INVALID
++#Function = pkey_rsa_ctrl
++#Reason = key size too small
+ 
+ # RSA-PSS with restrictions, should succeed.
+ KeyGen = RSASSA-PSS
