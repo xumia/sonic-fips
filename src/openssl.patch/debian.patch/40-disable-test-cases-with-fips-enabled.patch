@@ -1,0 +1,339 @@
+diff --git a/test/recipes/05-test_rand.t b/test/recipes/05-test_rand.t
+index 3ae254031c..95ebba15f0 100644
+--- a/test/recipes/05-test_rand.t
++++ b/test/recipes/05-test_rand.t
+@@ -10,8 +10,8 @@ use strict;
+ use warnings;
+ use OpenSSL::Test;
+ 
+-plan tests => 2;
++plan tests => 1;
+ setup("test_rand");
+ 
+-ok(run(test(["drbgtest"])));
++#ok(run(test(["drbgtest"])));
+ ok(run(test(["drbg_cavs_test"])));
+diff --git a/test/recipes/15-test_ecdsa.t b/test/recipes/15-test_ecdsa.t
+deleted file mode 100644
+index 82a85594c3..0000000000
+--- a/test/recipes/15-test_ecdsa.t
++++ /dev/null
+@@ -1,12 +0,0 @@
+-#! /usr/bin/env perl
+-# Copyright 2015-2016 The OpenSSL Project Authors. All Rights Reserved.
+-#
+-# Licensed under the OpenSSL license (the "License").  You may not use
+-# this file except in compliance with the License.  You can obtain a copy
+-# in the file LICENSE in the source distribution or at
+-# https://www.openssl.org/source/license.html
+-
+-
+-use OpenSSL::Test::Simple;
+-
+-simple_test("test_ecdsa", "ecdsatest", "ec");
+diff --git a/test/recipes/90-test_shlibload.t b/test/recipes/90-test_shlibload.t
+index 8372a61e88..383dd35581 100644
+--- a/test/recipes/90-test_shlibload.t
++++ b/test/recipes/90-test_shlibload.t
+@@ -23,7 +23,7 @@ plan skip_all => "Test is disabled on AIX" if config('target') =~ m|^aix|;
+ plan skip_all => "Test is disabled on VMS" if config('target') =~ m|^vms|;
+ plan skip_all => "Test only supported in a dso build" if disabled("dso");
+ 
+-plan tests => 10;
++plan tests => 4;
+ 
+ # When libssl and libcrypto are compiled on Linux with "-rpath", but not
+ # "--enable-new-dtags", the RPATH takes precedence over LD_LIBRARY_PATH,
+@@ -43,21 +43,21 @@ ok(run(test(["shlibloadtest", "-ssl_first", $libcrypto, $libssl, $filename])),
+    "running shlibloadtest -ssl_first $filename");
+ ok(check_atexit($fh));
+ unlink $filename;
+-($fh, $filename) = tempfile();
+-ok(run(test(["shlibloadtest", "-just_crypto", $libcrypto, $libssl, $filename])),
+-   "running shlibloadtest -just_crypto $filename");
+-ok(check_atexit($fh));
+-unlink $filename;
+-($fh, $filename) = tempfile();
+-ok(run(test(["shlibloadtest", "-dso_ref", $libcrypto, $libssl, $filename])),
+-   "running shlibloadtest -dso_ref $filename");
+-ok(check_atexit($fh));
+-unlink $filename;
+-($fh, $filename) = tempfile();
+-ok(run(test(["shlibloadtest", "-no_atexit", $libcrypto, $libssl, $filename])),
+-   "running shlibloadtest -no_atexit $filename");
+-ok(!check_atexit($fh));
+-unlink $filename;
++#($fh, $filename) = tempfile();
++#ok(run(test(["shlibloadtest", "-just_crypto", $libcrypto, $libssl, $filename])),
++#   "running shlibloadtest -just_crypto $filename");
++#ok(check_atexit($fh));
++#unlink $filename;
++#($fh, $filename) = tempfile();
++#ok(run(test(["shlibloadtest", "-dso_ref", $libcrypto, $libssl, $filename])),
++#   "running shlibloadtest -dso_ref $filename");
++#ok(check_atexit($fh));
++#unlink $filename;
++#($fh, $filename) = tempfile();
++#ok(run(test(["shlibloadtest", "-no_atexit", $libcrypto, $libssl, $filename])),
++#   "running shlibloadtest -no_atexit $filename");
++#ok(!check_atexit($fh));
++#unlink $filename;
+ 
+ sub shlib {
+     my $lib = shift;
+diff --git a/test/recipes/30-test_evp_extra.t b/test/recipes/30-test_evp_extra.t
+deleted file mode 100644
+index 9a656b0bcb..0000000000
+--- a/test/recipes/30-test_evp_extra.t
++++ /dev/null
+@@ -1,18 +0,0 @@
+-#! /usr/bin/env perl
+-# Copyright 2015-2016 The OpenSSL Project Authors. All Rights Reserved.
+-#
+-# Licensed under the OpenSSL license (the "License").  You may not use
+-# this file except in compliance with the License.  You can obtain a copy
+-# in the file LICENSE in the source distribution or at
+-# https://www.openssl.org/source/license.html
+-
+-
+-use strict;
+-use warnings;
+-
+-use OpenSSL::Test;
+-
+-setup("test_evp_extra");
+-
+-plan tests => 1;
+-ok(run(test(["evp_extra_test"])), "running evp_extra_test");
+diff --git a/test/recipes/90-test_includes.t b/test/recipes/90-test_includes.t
+index c6a86fc009..8db1d024f2 100644
+--- a/test/recipes/90-test_includes.t
++++ b/test/recipes/90-test_includes.t
+@@ -11,13 +11,13 @@ plan skip_all => "test_includes doesn't work without posix-io"
+     if disabled("posix-io");
+ 
+ plan tests =>                   # The number of tests being performed
+-    5
++    1
+     + ($^O eq "VMS" ? 2 : 0);
+ 
+-ok(run(test(["conf_include_test", data_file("includes.cnf")])), "test directory includes");
+-ok(run(test(["conf_include_test", data_file("includes-file.cnf")])), "test file includes");
+-ok(run(test(["conf_include_test", data_file("includes-eq.cnf")])), "test includes with equal character");
+-ok(run(test(["conf_include_test", data_file("includes-eq-ws.cnf")])), "test includes with equal and whitespaces");
++#ok(run(test(["conf_include_test", data_file("includes.cnf")])), "test directory includes");
++#ok(run(test(["conf_include_test", data_file("includes-file.cnf")])), "test file includes");
++#ok(run(test(["conf_include_test", data_file("includes-eq.cnf")])), "test includes with equal character");
++#ok(run(test(["conf_include_test", data_file("includes-eq-ws.cnf")])), "test includes with equal and whitespaces");
+ if ($^O eq "VMS") {
+     ok(run(test(["conf_include_test", data_file("vms-includes.cnf")])),
+        "test directory includes, VMS syntax");
+diff --git a/test/recipes/15-test_mp_rsa.t b/test/recipes/15-test_mp_rsa.t
+deleted file mode 100644
+index 9271dba042..0000000000
+--- a/test/recipes/15-test_mp_rsa.t
++++ /dev/null
+@@ -1,111 +0,0 @@
+-#! /usr/bin/env perl
+-# Copyright 2017 The OpenSSL Project Authors. All Rights Reserved.
+-# Copyright 2017 BaishanCloud. All rights reserved.
+-#
+-# Licensed under the OpenSSL license (the "License").  You may not use
+-# this file except in compliance with the License.  You can obtain a copy
+-# in the file LICENSE in the source distribution or at
+-# https://www.openssl.org/source/license.html
+-
+-
+-use strict;
+-use warnings;
+-
+-use File::Spec;
+-use OpenSSL::Test qw/:DEFAULT data_file/;
+-use OpenSSL::Test::Utils;
+-
+-setup("test_mp_rsa");
+-
+-plan tests => 31;
+-
+-ok(run(test(["rsa_mp_test"])), "running rsa multi prime test");
+-
+-my $cleartext = data_file("plain_text");
+-
+-my @test_param = (
+-    # 3 primes, 2048-bit
+-    {
+-        primes => '3',
+-        bits => '2048',
+-    },
+-    # 4 primes, 4096-bit
+-    {
+-        primes => '4',
+-        bits => '4096',
+-    },
+-    # 5 primes, 8192-bit
+-    {
+-        primes => '5',
+-        bits => '8192',
+-    },
+-);
+-
+-# genrsa
+-run_mp_tests(0);
+-# evp
+-run_mp_tests(1);
+-
+-sub run_mp_tests {
+-    my $evp = shift;
+-
+-    foreach my $param (@test_param) {
+-        my $primes = $param->{primes};
+-        my $bits = $param->{bits};
+-        my $name = ($evp ? "evp" : "") . "${bits}p${primes}";
+-
+-        if ($evp) {
+-            ok(run(app([ 'openssl', 'genpkey', '-out', 'rsamptest.pem',
+-                         '-algorithm', 'RSA', '-pkeyopt', "rsa_keygen_primes:$primes",
+-                         '-pkeyopt', "rsa_keygen_bits:$bits"])), "genrsa $name");
+-        } else {
+-            ok(run(app([ 'openssl', 'genrsa', '-out', 'rsamptest.pem',
+-                         '-primes', $primes, $bits])), "genrsa $name");
+-        }
+-
+-        ok(run(app([ 'openssl', 'rsa', '-check', '-in', 'rsamptest.pem',
+-                     '-noout'])), "rsa -check $name");
+-        if ($evp) {
+-            ok(run(app([ 'openssl', 'pkeyutl', '-inkey', 'rsamptest.pem',
+-                         '-encrypt', '-in', $cleartext,
+-                         '-out', 'rsamptest.enc' ])), "rsa $name encrypt");
+-            ok(run(app([ 'openssl', 'pkeyutl', '-inkey', 'rsamptest.pem',
+-                         '-decrypt', '-in', 'rsamptest.enc',
+-                         '-out', 'rsamptest.dec' ])), "rsa $name decrypt");
+-        } else {
+-            ok(run(app([ 'openssl', 'rsautl', '-inkey', 'rsamptest.pem',
+-                         '-encrypt', '-in', $cleartext,
+-                         '-out', 'rsamptest.enc' ])), "rsa $name encrypt");
+-            ok(run(app([ 'openssl', 'rsautl', '-inkey', 'rsamptest.pem',
+-                         '-decrypt', '-in', 'rsamptest.enc',
+-                         '-out', 'rsamptest.dec' ])), "rsa $name decrypt");
+-        }
+-
+-        ok(check_msg(), "rsa $name check result");
+-
+-        # clean up temp files
+-        unlink 'rsamptest.pem';
+-        unlink 'rsamptest.enc';
+-        unlink 'rsamptest.dec';
+-    }
+-}
+-
+-sub check_msg {
+-    my $msg;
+-    my $dec;
+-
+-    open(my $fh, "<", $cleartext) or return 0;
+-    binmode $fh;
+-    read($fh, $msg, 10240);
+-    close $fh;
+-    open($fh, "<", "rsamptest.dec") or return 0;
+-    binmode $fh;
+-    read($fh, $dec, 10240);
+-    close $fh;
+-
+-    if ($msg ne $dec) {
+-        print STDERR "cleartext and decrypted are not the same";
+-        return 0;
+-    }
+-    return 1;
+-}
+diff --git a/test/recipes/15-test_rsapss.t b/test/recipes/15-test_rsapss.t
+deleted file mode 100644
+index 65ec6f3d75..0000000000
+--- a/test/recipes/15-test_rsapss.t
++++ /dev/null
+@@ -1,49 +0,0 @@
+-#! /usr/bin/env perl
+-# Copyright 2017-2019 The OpenSSL Project Authors. All Rights Reserved.
+-#
+-# Licensed under the OpenSSL license (the "License").  You may not use
+-# this file except in compliance with the License.  You can obtain a copy
+-# in the file LICENSE in the source distribution or at
+-# https://www.openssl.org/source/license.html
+-
+-
+-use strict;
+-use warnings;
+-
+-use File::Spec;
+-use OpenSSL::Test qw/:DEFAULT with srctop_file/;
+-use OpenSSL::Test::Utils;
+-
+-setup("test_rsapss");
+-
+-plan tests => 5;
+-
+-#using test/testrsa.pem which happens to be a 512 bit RSA
+-ok(run(app(['openssl', 'dgst', '-sign', srctop_file('test', 'testrsa.pem'), '-sha1',
+-            '-sigopt', 'rsa_padding_mode:pss', '-sigopt', 'rsa_pss_saltlen:max',
+-            '-sigopt', 'rsa_mgf1_md:sha512', '-out', 'testrsapss.sig',
+-            srctop_file('test', 'testrsa.pem')])),
+-   "openssl dgst -sign");
+-
+-with({ exit_checker => sub { return shift == 1; } },
+-     sub { ok(run(app(['openssl', 'dgst', '-sign', srctop_file('test', 'testrsa.pem'), '-sha512',
+-                       '-sigopt', 'rsa_padding_mode:pss', '-sigopt', 'rsa_pss_saltlen:max',
+-                       '-sigopt', 'rsa_mgf1_md:sha512', srctop_file('test', 'testrsa.pem')])),
+-              "openssl dgst -sign, expect to fail gracefully");
+-           ok(run(app(['openssl', 'dgst', '-sign', srctop_file('test', 'testrsa.pem'), '-sha512',
+-                       '-sigopt', 'rsa_padding_mode:pss', '-sigopt', 'rsa_pss_saltlen:2147483647',
+-                       '-sigopt', 'rsa_mgf1_md:sha1', srctop_file('test', 'testrsa.pem')])),
+-              "openssl dgst -sign, expect to fail gracefully");
+-           ok(run(app(['openssl', 'dgst', '-prverify', srctop_file('test', 'testrsa.pem'), '-sha512',
+-                       '-sigopt', 'rsa_padding_mode:pss', '-sigopt', 'rsa_pss_saltlen:max',
+-                       '-sigopt', 'rsa_mgf1_md:sha512', '-signature', 'testrsapss.sig',
+-                       srctop_file('test', 'testrsa.pem')])),
+-              "openssl dgst -prverify, expect to fail gracefully");
+-         });
+-
+-ok(run(app(['openssl', 'dgst', '-prverify', srctop_file('test', 'testrsa.pem'), '-sha1',
+-            '-sigopt', 'rsa_padding_mode:pss', '-sigopt', 'rsa_pss_saltlen:max',
+-            '-sigopt', 'rsa_mgf1_md:sha512', '-signature', 'testrsapss.sig',
+-            srctop_file('test', 'testrsa.pem')])),
+-   "openssl dgst -prverify");
+-unlink 'testrsapss.sig';
+diff --git a/test/recipes/80-test_cms.t b/test/recipes/80-test_cms.t
+index 5dc6a3aebe..5fbbea4538 100644
+--- a/test/recipes/80-test_cms.t
++++ b/test/recipes/80-test_cms.t
+@@ -328,7 +328,7 @@ my @smime_cms_param_tests = (
+     [ "signed content test streaming PEM format, RSA keys, PSS signature, SHA384 MGF1",
+       [ "-sign", "-in", $smcont, "-outform", "PEM", "-nodetach",
+ 	"-signer", catfile($smdir, "smrsa1.pem"), "-keyopt", "rsa_padding_mode:pss",
+-	"-keyopt", "rsa_mgf1_md:sha384", "-out", "test.cms" ],
++	"-md", "sha384", "-keyopt", "rsa_mgf1_md:sha384", "-out", "test.cms" ],
+       [ "-verify", "-in", "test.cms", "-inform", "PEM",
+ 	"-CAfile", catfile($smdir, "smroot.pem"), "-out", "smtst.txt" ]
+     ],
+diff --git a/test/recipes/30-test_engine.t b/test/recipes/30-test_engine.t
+deleted file mode 100644
+index 03c96cde09..0000000000
+--- a/test/recipes/30-test_engine.t
++++ /dev/null
+@@ -1,18 +0,0 @@
+-#! /usr/bin/env perl
+-# Copyright 2015-2016 The OpenSSL Project Authors. All Rights Reserved.
+-#
+-# Licensed under the OpenSSL license (the "License").  You may not use
+-# this file except in compliance with the License.  You can obtain a copy
+-# in the file LICENSE in the source distribution or at
+-# https://www.openssl.org/source/license.html
+-
+-
+-use strict;
+-use warnings;
+-
+-use OpenSSL::Test;
+-
+-setup("test_engine");
+-
+-plan tests => 1;
+-ok(run(test(["enginetest"])), "running enginetest");
