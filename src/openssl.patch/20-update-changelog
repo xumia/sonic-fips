@@ -1,0 +1,21 @@
+diff --git a/debian/changelog b/debian/changelog
+index f2c3b6b4e9..eae0b966d3 100644
+--- a/debian/changelog
++++ b/debian/changelog
+@@ -1,3 +1,16 @@
++openssl (1.1.1n-0+deb11u3) bullseye-security; urgency=medium
++
++  * CVE-2022-2068 (The c_rehash script allows command injection).
++  * Update expired certs.
++
++ -- Sebastian Andrzej Siewior <sebastian@breakpoint.cc>  Fri, 24 Jun 2022 22:22:19 +0200
++
++openssl (1.1.1n-0+deb11u2) bullseye-security; urgency=medium
++
++  * CVE-2022-1292 (The c_rehash script allows command injection).
++
++ -- Sebastian Andrzej Siewior <sebastian@breakpoint.cc>  Tue, 10 May 2022 20:37:36 +0200
++
+ openssl (1.1.1n-0+deb11u1) bullseye; urgency=medium
+ 
+   * New upstream version.

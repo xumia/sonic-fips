@@ -1,0 +1,195 @@
+diff --git a/crypto/init.c b/crypto/init.c
+index 1b0d523bea..31fbd42cd2 100644
+--- a/crypto/init.c
++++ b/crypto/init.c
+@@ -404,6 +404,67 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_engine_afalg)
+ # endif
+ #endif
+ 
++# ifndef OPENSSL_NO_SYMCRYPT_ENGINE
++static CRYPTO_ONCE engine_symcrypt = CRYPTO_ONCE_STATIC_INIT;
++DEFINE_RUN_ONCE_STATIC(ossl_init_engine_symcrypt)
++{
++    int ret = 0;
++
++    // Get the default engine directory from the environment - may be NULL
++    char* load_dir = ossl_safe_getenv("OPENSSL_ENGINES");
++
++    #ifdef ENGINESDIR
++    // Use the default engines directory, if defined
++    if(load_dir == NULL)
++    {
++            load_dir = ENGINESDIR;
++    }
++    #endif
++
++    ENGINE *dynamic = NULL;
++    ENGINE *symcrypt = NULL;
++
++    dynamic = ENGINE_by_id("dynamic");
++    if (!dynamic)
++        goto err;
++
++    // Add the engines directory to the list of directories to load from and specify that loading
++    // from the directory list is mandatory (via DIR_LOAD = 2). Otherwise OpenSSL will try to load
++    // the engine from the default ld search path, fail, and skip loading from the engines dir.
++    if (!ENGINE_ctrl_cmd_string(dynamic, "DIR_ADD", load_dir, 0))
++        goto err;
++    if (!ENGINE_ctrl_cmd_string(dynamic, "DIR_LOAD", "2", 0))
++        goto err;
++    if (!ENGINE_ctrl_cmd_string(dynamic, "SO_PATH", "symcryptengine.so", 0))
++        goto err;
++    if (!ENGINE_ctrl_cmd_string(dynamic, "ID", "symcrypt", 0))
++        goto err;
++    if (!ENGINE_ctrl_cmd_string(dynamic, "LIST_ADD", "2", 0))
++        goto err;
++    if (!ENGINE_ctrl_cmd_string(dynamic, "LOAD", NULL, 0))
++        goto err;
++
++    symcrypt = ENGINE_by_id("symcrypt");
++    if (!symcrypt)
++        goto err;
++
++    // Make SymCrypt the default engine for all algorithms
++    if (!ENGINE_set_default_string(symcrypt, "ALL"))
++        goto err;
++
++err:
++    ENGINE_free(symcrypt);
++    ENGINE_free(dynamic);
++
++#  ifdef OPENSSL_INIT_DEBUG
++    fprintf(stderr, "OPENSSL_INIT: ossl_init_engine_symcrypt: %d\n",
++        ret);
++#  endif
++
++    return ret;
++}
++# endif
++
+ #ifndef OPENSSL_NO_COMP
+ static CRYPTO_ONCE zlib = CRYPTO_ONCE_STATIC_INIT;
+ 
+@@ -612,6 +673,72 @@ void OPENSSL_cleanup(void)
+     base_inited = 0;
+ }
+ 
++#define BUZZ_SIZE 4096
++#define PROC_CMDLINE "/proc/cmdline"
++#define FIPS_ENABLE_CONF "/etc/fips/fips_enable"
++#define FIPS_OPENSSL_CONFIG "/usr/lib/ssl/openssl-fips.cnf"
++int g_fips_mode_enabled = -1;
++// Check if the fips is enabled by command line
++int ossl_fips_enabled_by_cmd(){
++    int enabled = 0;
++    FILE * fp = NULL;
++    char buff[BUZZ_SIZE] = "";
++    if((fp = fopen(PROC_CMDLINE, "r")) != NULL){
++        fgets(buff, BUZZ_SIZE, fp);
++        char * token = strtok(buff, " \n");
++        while( token != NULL ) {
++            if (strcmp(token, "fips=1") == 0){
++                enabled = 1;
++                break;
++            }
++            if (strcmp(token, "sonic_fips=1") == 0){
++                enabled = 1;
++                break;
++            }
++            token = strtok(NULL, " \n");
++        }
++
++        fclose(fp);
++    }
++
++    return enabled;
++}
++
++// Check if fips is enabled by config
++int ossl_fips_enabled_by_conf(){
++    int enabled = 0;
++    FILE * fp = NULL;
++    char buff[BUZZ_SIZE] = "";
++    if((fp = fopen(FIPS_ENABLE_CONF, "r")) != NULL ){
++        fgets(buff, BUZZ_SIZE, fp);
++        if (strlen(buff) > 0 && buff[0] == '1') {
++            enabled = 1;
++        }
++
++        fclose(fp);
++    }
++
++    return enabled;
++}
++
++// Init fips config
++static CRYPTO_ONCE fips_config = CRYPTO_ONCE_STATIC_INIT;
++DEFINE_RUN_ONCE_STATIC(ossl_init_fips_conf)
++{
++    g_fips_mode_enabled = 0;
++    if (ossl_fips_enabled_by_cmd() > 0){
++        g_fips_mode_enabled = 1;
++        return 1;
++    }
++
++    if (ossl_fips_enabled_by_conf() > 0){
++        g_fips_mode_enabled = 1;
++        return 1;
++    }
++
++    return 1;
++}
++
+ /*
+  * If this function is called with a non NULL settings value then it must be
+  * called prior to any threads making calls to any OpenSSL functions,
+@@ -723,9 +850,14 @@ int OPENSSL_init_crypto(uint64_t opts, const OPENSSL_INIT_SETTINGS *settings)
+             && !RUN_ONCE(&engine_rdrand, ossl_init_engine_rdrand))
+         return 0;
+ # endif
+-    if ((opts & OPENSSL_INIT_ENGINE_DYNAMIC)
+-            && !RUN_ONCE(&engine_dynamic, ossl_init_engine_dynamic))
+-        return 0;
++    if (opts & OPENSSL_INIT_ENGINE_DYNAMIC)
++    {
++        if (!RUN_ONCE(&engine_dynamic, ossl_init_engine_dynamic))
++            return 0;
++        RUN_ONCE(&fips_config, ossl_init_fips_conf);
++        if (g_fips_mode_enabled == 1)
++            RUN_ONCE(&engine_symcrypt, ossl_init_engine_symcrypt);
++    }
+ # ifndef OPENSSL_NO_STATIC_ENGINE
+ #  if !defined(OPENSSL_NO_HW) && !defined(OPENSSL_NO_HW_PADLOCK)
+     if ((opts & OPENSSL_INIT_ENGINE_PADLOCK)
+diff --git a/crypto/engine/build.info b/crypto/engine/build.info
+index e00802a3fd..66bb39fa38 100644
+--- a/crypto/engine/build.info
++++ b/crypto/engine/build.info
+@@ -9,3 +9,4 @@ SOURCE[../../libcrypto]=\
+ IF[{- !$disabled{devcryptoeng} -}]
+   SOURCE[../../libcrypto]=eng_devcrypto.c
+ ENDIF
++SHARED_SOURCE[../../libcrypto]=eng_all_shared.c
+diff --git a/crypto/engine/eng_all_shared.c b/crypto/engine/eng_all_shared.c
+new file mode 100644
+index 0000000000..c340de9472
+--- /dev/null
++++ b/crypto/engine/eng_all_shared.c
+@@ -0,0 +1,17 @@
++/*
++ * Copyright 2001-2022 The OpenSSL Project Authors. All Rights Reserved.
++ *
++ * Licensed under the OpenSSL license (the "License").  You may not use
++ * this file except in compliance with the License.  You can obtain a copy
++ * in the file LICENSE in the source distribution or at
++ * https://www.openssl.org/source/license.html
++ */
++
++#include "internal/cryptlib.h"
++#include "eng_local.h"
++
++__attribute__((constructor))
++void ENGINE_static_initializer(void)
++{
++    OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_DYNAMIC, NULL);
++}
