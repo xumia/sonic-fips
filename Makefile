@@ -34,6 +34,9 @@ list:
 
 symcrypt : $(TARGET_PATH)/$(SYMCRYPT_OPENSSL)
 
+test:
+	mkdir test
+
 openssl: $(TARGET_PATH)/$(OPENSSL)
 
 $(addprefix $(TARGET_PATH)/, $(MAIN_TARGETS)) : $(TARGET_PATH)/% : $$(addprefix $(TARGET_PATH)/,$$($$*_DEPENDS))
