@@ -68,7 +68,12 @@ jobs:
   - script: |
       set -ex
       ARCH=${{ parameters.arch }} make openssl
+      ls -l /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1 /usr/lib/x86_64-linux-gnu/libssl.so.1.1
+      md5sum /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1 /usr/lib/x86_64-linux-gnu/libssl.so.1.1
+      md5sum target/*
       sudo dpkg -i target/libssl*.deb target/openssl*.deb
+      ls -l /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1 /usr/lib/x86_64-linux-gnu/libssl.so.1.1
+      md5sum /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1 /usr/lib/x86_64-linux-gnu/libssl.so.1.1
     displayName: 'Build and install openssl'
   - script: |
       set -ex
@@ -81,6 +86,7 @@ jobs:
       popd
 
       ARCH=${{ parameters.arch }} TARGET_PATH=target-test make openssl
+      md5sum target/*
       echo 0 | sudo tee /etc/fips/fips_enable
     displayName: 'Test openssl with fips enabled'
  
