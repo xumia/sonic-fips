@@ -50,7 +50,7 @@ $(addprefix $(TARGET_PATH)/, $(MAIN_TARGETS)) : $(TARGET_PATH)/% : $$(addprefix 
 	# Merge the debian patches if not applied
 	if [ -f $($*_SRC_PATH).patch/debian.patch/series ]; then
 	  LAST_PATCH=$$(tail -n1  $($*_SRC_PATH).patch/debian.patch/series)
-	  if ! grep -q $$LAST_PATCH $($*_SRC_PATH)/debian/patches/series 2>/null; then
+	  if ! grep -q $$LAST_PATCH $($*_SRC_PATH)/debian/patches/series 2>/dev/null; then
 	    echo "Applying patches for $($*_SRC_PATH)/debian/patches/"
 	    cat $($*_SRC_PATH).patch/debian.patch/series >> $($*_SRC_PATH)/debian/patches/series
 	    cp $($*_SRC_PATH).patch/debian.patch/*.patch $($*_SRC_PATH)/debian/patches/
@@ -66,6 +66,8 @@ $(addprefix $(TARGET_PATH)/, $(MAIN_TARGETS)) : $(TARGET_PATH)/% : $$(addprefix 
 	  fi
 	  # Fix Misc/NEWS not found issue for python
 	  if [[ "$*" == python3* ]]; then touch Misc/NEWS; fi
+	  # Fix package overwrite issue, increase the timestamp
+	  export SOURCE_DATE_EPOCH="$$(($$(dpkg-parsechangelog -STimestamp) + 86400))"
 	  $($*_BUILD_OPTIONS) dpkg-buildpackage -b -d -rfakeroot -us -uc | tee $(DEST)/$*.log
 	  popd
 	  mkdir -p $(DEST)
