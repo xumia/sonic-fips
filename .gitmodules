@@ -3,7 +3,7 @@
 	url = https://salsa.debian.org/ssh-team/openssh
 [submodule "src/SymCrypt"]
 	path = src/SymCrypt
-	url = https://github.com/microsoft/SymCrypt
+	url = https://microsoft.visualstudio.com/OS/_git/SymCrypt
 [submodule "src/SymCrypt-OpenSSL"]
 	path = src/SymCrypt-OpenSSL
 	url = https://github.com/microsoft/SymCrypt-OpenSSL
