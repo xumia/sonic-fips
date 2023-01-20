@@ -7,3 +7,4 @@ Update-further-expiring-certificates-that-affect-tests.patch
 30-disable-some-evppkey-tests-for-fips.patch
 40-disable-test-cases-with-fips-enabled.patch
 50-disable-some-evpciph-test-for-fips.patch
+60-disable-evpmac-tests-for-fips.patch

@@ -39,7 +39,7 @@ list:
 
 $(LIBSYMCRYPT):
 	cd ../SymCrypt
-	cmake -S . -B bin -DSYMCRYPT_TARGET_ARCH=$(CMAKE_ARCH) -DCMAKE_BUILD_TYPE=Release
+	cmake -S . -B bin -DSYMCRYPT_TARGET_ARCH=$(CMAKE_ARCH) -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE)
 	cmake --build bin -j$(BUILD_JOBS)
 	mkdir -p $(DEST)/debug
 	cp -a bin/module/generic/libsymcrypt.so* $(DEST)/
