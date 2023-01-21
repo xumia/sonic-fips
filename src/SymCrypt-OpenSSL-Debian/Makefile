@@ -4,6 +4,7 @@ SHELL = /bin/bash
 
 ARCH ?= amd64
 CMAKE_BUILD_TYPE ?= Release
+BUILD_JOBS ?= $(shell nproc)
 BUILD_NAME = symcrypt-openssl
 SYMCRYPT_OPENSSL_VERSION ?= 0.1
 SYMCRYPT_PACKAGE = $(BUILD_NAME)_$(SYMCRYPT_OPENSSL_VERSION)_$(ARCH).deb
@@ -38,12 +39,11 @@ list:
 
 $(LIBSYMCRYPT):
 	cd ../SymCrypt
-	mkdir -p bin
-	cd bin
-	cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake-toolchain/LinuxUserMode-$(CMAKE_ARCH).cmake -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE)
-	cmake --build .
-	mkdir -p $(DEST)
-	cp -a module/$(CMAKE_ARCH)/LinuxUserMode/generic/libsymcrypt.so* $(DEST)/
+	cmake -S . -B bin -DSYMCRYPT_TARGET_ARCH=$(CMAKE_ARCH) -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+	cmake --build bin -j$(BUILD_JOBS)
+	mkdir -p $(DEST)/debug
+	cp -a bin/module/generic/libsymcrypt.so* $(DEST)/
+	cp -a bin/module/generic/.debug/libsymcrypt.so* $(DEST)/debug/
 
 $(LIBSYMCRYPTENGINE): $(LIBSYMCRYPT)
 	cd ../SymCrypt-OpenSSL

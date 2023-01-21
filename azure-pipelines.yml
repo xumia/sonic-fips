@@ -18,8 +18,8 @@ pr:
       - main
 
 jobs:
-- template: .azure-pipelins/build-template.yml
-- template: .azure-pipelins/build-template.yml
+- template: .azure-pipelines/build-template.yml
+- template: .azure-pipelines/build-template.yml
   parameters:
     pool: sonicbld-arm64
     arch: arm64
