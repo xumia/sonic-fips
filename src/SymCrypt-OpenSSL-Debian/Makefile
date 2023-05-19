@@ -43,7 +43,7 @@ $(LIBSYMCRYPT):
 	cmake --build bin -j$(BUILD_JOBS)
 	mkdir -p $(DEST)/debug
 	cp -a bin/module/generic/libsymcrypt.so* $(DEST)/
-	cp -a bin/module/generic/.debug/libsymcrypt.so* $(DEST)/debug/
+	cp -a bin/module/generic/processing/libsymcrypt.so* $(DEST)/debug/
 
 $(LIBSYMCRYPTENGINE): $(LIBSYMCRYPT)
 	cd ../SymCrypt-OpenSSL
