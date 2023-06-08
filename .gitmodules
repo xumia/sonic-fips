@@ -15,15 +15,14 @@
 	url = https://github.com/python/cpython
 [submodule "src/golang"]
 	path = src/golang
-	url = https://pagure.io/go
-	branch = go1.15-openssl-fips
+	url = https://github.com/golang-fips/go
 [submodule "src/golang-debian"]
 	path = src/golang-debian
 	url = https://salsa.debian.org/go-team/compiler/golang.git
 	branch = debian/1.15/bullseye
 [submodule "src/openssl"]
-        path = src/openssl
-        url = https://salsa.debian.org/debian/openssl
+	path = src/openssl
+	url = https://salsa.debian.org/debian/openssl
 [submodule "src/krb5"]
 	path = src/krb5
 	url = https://salsa.debian.org/debian/krb5
