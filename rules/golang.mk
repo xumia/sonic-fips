@@ -7,7 +7,8 @@ GOLANG = golang-$(GOLANG_MAIN_VERSION)_$(GOLANG_VERSOIN_FIPS)_all.deb
 $(GOLANG)_SRC_PATH = $(SRC_PATH)/golang/go
 $(GOLANG)_DEBIAN = $(SRC_PATH)/golang-debian/debian
 $(GOLANG)_DEPENDS = $(SYMCRYPT_OPENSSL)
-$(GOLANG)_PRE_SCRIPT = ls src/golang/patches/ | tr " " "\n" > src/golang/patches/series;
+$(GOLANG)_PRE_SCRIPT = ls src/golang/patches/ | grep .patch > src/golang/patches/series;
+$(GOLANG)_PATCH_EXT = ../patches
 
 MAIN_TARGETS += $(GOLANG)
 $(GOLANG)_DERIVED_DEBS = golang-$(GOLANG_MAIN_VERSION)-src_$(GOLANG_VERSOIN_FIPS)_$(ARCH).deb
