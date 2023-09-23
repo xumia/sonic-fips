@@ -162,13 +162,13 @@ index 1b0d523bea..31fbd42cd2 100644
  #  if !defined(OPENSSL_NO_HW) && !defined(OPENSSL_NO_HW_PADLOCK)
      if ((opts & OPENSSL_INIT_ENGINE_PADLOCK)
 diff --git a/crypto/engine/build.info b/crypto/engine/build.info
-index e00802a3fd..66bb39fa38 100644
+index 47fe948966..33d3bb7a7c 100644
 --- a/crypto/engine/build.info
 +++ b/crypto/engine/build.info
-@@ -9,3 +9,4 @@ SOURCE[../../libcrypto]=\
- IF[{- !$disabled{devcryptoeng} -}]
-   SOURCE[../../libcrypto]=eng_devcrypto.c
- ENDIF
+@@ -6,3 +6,4 @@ SOURCE[../../libcrypto]=\
+         tb_cipher.c tb_digest.c tb_pkmeth.c tb_asnmth.c tb_eckey.c \
+         eng_openssl.c eng_cnf.c eng_dyn.c \
+         eng_rdrand.c
 +SHARED_SOURCE[../../libcrypto]=eng_all_shared.c
 diff --git a/crypto/engine/eng_all_shared.c b/crypto/engine/eng_all_shared.c
 new file mode 100644
