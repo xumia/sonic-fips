@@ -27,4 +27,4 @@ jobs:
   parameters:
     pool: sonicbld-armhf
     arch: armhf
-    image: publicmirror.azurecr.io/arm32v7/debian:bullseye
+    image: publicmirror.azurecr.io/azp-debian-armhf:bullseye
