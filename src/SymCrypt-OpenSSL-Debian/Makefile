@@ -44,7 +44,7 @@ list:
 
 $(LIBSYMCRYPT):
 	cd ../SymCrypt
-	if [ "$(ARCH)" == "amd64" ]; then
+	if [ "$(ARCH)" == "amd64" ] || [ "$(ARCH)" == "arm64" ]; then
 	    cmake -S . -B bin -DSYMCRYPT_TARGET_ARCH=$(CMAKE_ARCH) -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
 	    cmake --build bin -j$(BUILD_JOBS)
 	else
