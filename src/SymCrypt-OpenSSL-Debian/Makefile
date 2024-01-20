@@ -21,16 +21,16 @@ LIB_INSTALL_NAME = arm-linux-gnueabihf
 endif
 
 INSTALL_PATH = $(BUILD_ROOT_DIR)/usr/lib/$(LIB_INSTALL_NAME)
-ENGINES_PATH = $(INSTALL_PATH)/engines-1.1
+PROVIDERS_PATH = $(INSTALL_PATH)/ossl-modules
 DEBIAN_DIR = $(BUILD_ROOT_DIR)/DEBIAN
 
 ROOT_PATH = $(shell realpath $(shell pwd)/../..)
 DEST ?= $(ROOT_PATH)/target
 LIBSYMCRYPT = $(DEST)/libsymcrypt.so
-LIBSYMCRYPTENGINE = $(DEST)/libsymcryptengine.so
+LIBSYMCRYPTPROVIDER = $(DEST)/symcryptprovider.so
 TARGET = $(DEST)/$(SYMCRYPT_PACKAGE)
 
-DEPENDS := $(LIBSYMCRYPT) $(LIBSYMCRYPTENGINE)
+DEPENDS := $(LIBSYMCRYPT) $(LIBSYMCRYPTPROVIDER)
 
 all: $(TARGET)
 
@@ -45,7 +45,7 @@ $(LIBSYMCRYPT):
 	cp -a bin/module/generic/libsymcrypt.so* $(DEST)/
 	cp -a bin/module/generic/processing/libsymcrypt.so* $(DEST)/debug/
 
-$(LIBSYMCRYPTENGINE): $(LIBSYMCRYPT)
+$(LIBSYMCRYPTPROVIDER): $(LIBSYMCRYPT)
 	cd ../SymCrypt-OpenSSL
 	cp -P $(DEST)/libsymcrypt.so* ./
 	mkdir -p bin
@@ -53,18 +53,23 @@ $(LIBSYMCRYPTENGINE): $(LIBSYMCRYPT)
 	cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake-toolchain/LinuxUserMode-$(CMAKE_ARCH).cmake -DSYMCRYPT_ROOT_DIR=$(ROOT_PATH)/src/SymCrypt -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE)
 	cmake --build .
 	rm ../libsymcrypt.so*
-	cp SymCryptEngine/dynamic/symcryptengine.so $(LIBSYMCRYPTENGINE)
+	cp -a SymCryptProvider/symcryptprovider.so $(LIBSYMCRYPTPROVIDER)
+
+$(LIBSYMCRYPTPROVIDER)-bk:
+	wget https://sonicstorage.blob.core.windows.net/public/fips/bookworm/amd64/symcrypt/SymCryptProvider-103.4.0.tar.gz
+	mkdir -p SymCryptProvider
+	tar -xzf SymCryptProvider-103.4.0.tar.gz -C SymCryptProvider
+	cp -a SymCryptProvider/lib/libsymcrypt.so* $(DEST)/
+	cp -a SymCryptProvider/symcryptprovider.so $(DEST)/
 
 $(TARGET): $(DEPENDS)
 	mkdir -p $(INSTALL_PATH)
-	mkdir -p $(ENGINES_PATH)
+	mkdir -p $(PROVIDERS_PATH)
 	mkdir -p $(DEBIAN_DIR)
-	mkdir -p $(BUILD_ROOT_DIR)/usr/lib/ssl
+	mkdir -p $(BUILD_ROOT_DIR)/etc/ssl
 	cp -a $(DEST)/libsymcrypt.so* $(INSTALL_PATH)/
-	cp $(LIBSYMCRYPTENGINE) $(INSTALL_PATH)
-	ln -sf $(shell basename $(LIBSYMCRYPTENGINE)) $(INSTALL_PATH)/symcryptengine.so
-	ln -sf ../$(shell basename $(LIBSYMCRYPTENGINE)) $(ENGINES_PATH)/symcryptengine.so
-	chmod o+r $(INSTALL_PATH)/*
+	cp -a $(LIBSYMCRYPTPROVIDER) $(PROVIDERS_PATH)/
 	cp -rf debian/* $(DEBIAN_DIR)/
-	cp openssl.cnf $(BUILD_ROOT_DIR)/usr/lib/ssl/openssl-fips.cnf
+	chmod a+r -R $(INSTALL_PATH)/
+	cp openssl.cnf $(BUILD_ROOT_DIR)/etc/ssl/openssl-fips.cnf
 	fakeroot dpkg-deb --build $(BUILD_ROOT_DIR) $(TARGET)

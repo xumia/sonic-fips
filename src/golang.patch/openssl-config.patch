@@ -1,10 +1,10 @@
-Index: go1.15-openssl-fips/src/crypto/internal/boring/goopenssl.h
-===================================================================
---- go1.15-openssl-fips.orig/src/crypto/internal/boring/goopenssl.h
-+++ go1.15-openssl-fips/src/crypto/internal/boring/goopenssl.h
-@@ -68,9 +68,15 @@ _goboringcrypto_DLOPEN_OPENSSL(void)
- 
- DEFINEFUNCINTERNAL(int, OPENSSL_init, (void), ())
+diff --git a/src/vendor/github.com/golang-fips/openssl-fips/openssl/goopenssl.h b/src/vendor/github.com/golang-fips/openssl-fips/openssl/goopenssl.h
+index 23f1f5c58c..3852715eb1 100644
+--- a/src/vendor/github.com/golang-fips/openssl-fips/openssl/goopenssl.h
++++ b/src/vendor/github.com/golang-fips/openssl-fips/openssl/goopenssl.h
+@@ -83,9 +83,15 @@ static unsigned long _goboringcrypto_internal_OPENSSL_VERSION_NUMBER(void) {
+ 	return OPENSSL_VERSION_NUMBER;
+ }
  
 +#include <openssl/crypto.h>
 +#include "openssl/conf.h"
