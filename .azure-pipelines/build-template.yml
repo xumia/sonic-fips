@@ -63,10 +63,19 @@ jobs:
     displayName: 'Checkout Symcrypt submodules'
   - script: |
       set -ex
+      ARCH=${{ parameters.arch }} make openssl
+      sudo dpkg -i target/libssl*.deb target/openssl*.deb
+      sudo dpkg -i target/symcrypt-openssl*.deb
+      openssl list --providers
+    displayName: 'Build and install openssl'
+  - script: |
+      set -ex
       sudo mkdir -p $HOME
       sudo pip3 install --break-system-packages -r src/SymCrypt/scripts/requirements.txt
       ARCH=${{ parameters.arch }} make symcrypt
-      #sudo dpkg -i target/symcrypt-openssl*.deb
+      sudo dpkg -i target/symcrypt-openssl*.deb
+      openssl list --providers
+      openssl list --providers | grep -i symcrypt
     displayName: 'Build and install symcrypt'
   - script: |
       set -ex
@@ -75,6 +84,7 @@ jobs:
       sudo dpkg -i target/symcrypt-openssl*.deb
       openssl list --providers
       openssl list --providers | grep -i symcrypt
+    condition: false
     displayName: 'Build and install openssl'
   - script: |
       set -ex
