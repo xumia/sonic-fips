@@ -65,7 +65,7 @@ jobs:
       set -ex
       ARCH=${{ parameters.arch }} make openssl
       # OpenSSL 3.1.3 conflicts with openssh-client 9.2, need to install 9.4p1
-      sudo apt remove openssh-client || sudo apt -y --fix-broken install
+      sudo apt -y remove openssh-client || sudo apt -y --fix-broken install
       sudo dpkg -i target/libssl*.deb target/openssl*.deb
       openssl list --providers
     displayName: 'Build and install openssl'
