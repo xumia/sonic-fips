@@ -1,8 +1,8 @@
 diff --git a/engines/e_ossltest.c b/engines/e_ossltest.c
-index 64376247c3..70c8b62a68 100644
+index c925d2c5a6..b1f587291c 100644
 --- a/engines/e_ossltest.c
 +++ b/engines/e_ossltest.c
-@@ -319,6 +319,10 @@ static int bind_ossltest(ENGINE *e)
+@@ -428,6 +428,10 @@ static int bind_ossltest(ENGINE *e)
          return 0;
      }
  
@@ -12,16 +12,18 @@ index 64376247c3..70c8b62a68 100644
 +
      return 1;
  }
- 
+
 diff --git a/Configurations/unix-Makefile.tmpl b/Configurations/unix-Makefile.tmpl
-index 68e391c088..9033c1c78d 100644
+index 18255fd43b..c7a35265dd 100644
 --- a/Configurations/unix-Makefile.tmpl
 +++ b/Configurations/unix-Makefile.tmpl
-@@ -471,6 +471,7 @@ test: tests
- {- dependmagic('tests'); -}: build_programs_nodep build_engines_nodep link-utils
+@@ -528,6 +528,9 @@ all: build_sw build_docs
+ 
+ test: tests
+ {- dependmagic('tests'); -}: build_programs_nodep build_modules_nodep link-utils run_tests
++	@ : {- output_off() if $disabled{tests}; "" -}
++	( cd test; \
++	  cp $(libdir)/symcryptengine.so ../$(BLDDIR)/engines/; )
+ run_tests:
  	@ : {- output_off() if $disabled{tests}; "" -}
- 	( cd test; \
-+	  cp $(libdir)/symcryptengine.so ../$(BLDDIR)/engines/; \
- 	  mkdir -p test-runs; \
- 	  SRCTOP=../$(SRCDIR) \
- 	  BLDTOP=../$(BLDDIR) \
+ 	( SRCTOP=$(SRCDIR) \

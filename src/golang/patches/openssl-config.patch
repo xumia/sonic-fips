@@ -1,0 +1,20 @@
+diff --git a/src/vendor/github.com/golang-fips/openssl-fips/openssl/goopenssl.h b/src/vendor/github.com/golang-fips/openssl-fips/openssl/goopenssl.h
+index 23f1f5c58c..3852715eb1 100644
+--- a/src/vendor/github.com/golang-fips/openssl-fips/openssl/goopenssl.h
++++ b/src/vendor/github.com/golang-fips/openssl-fips/openssl/goopenssl.h
+@@ -83,9 +83,15 @@ static unsigned long _goboringcrypto_internal_OPENSSL_VERSION_NUMBER(void) {
+ 	return OPENSSL_VERSION_NUMBER;
+ }
+ 
++#include <openssl/crypto.h>
++#include "openssl/conf.h"
++
++DEFINEFUNCINTERNAL(int, OPENSSL_init_crypto, (uint64_t opts, const OPENSSL_INIT_SETTINGS *settings), (opts, settings))
++
+ static void
+ _goboringcrypto_OPENSSL_setup(void) {
+ 	_goboringcrypto_internal_OPENSSL_init();
++	_goboringcrypto_internal_OPENSSL_init_crypto(OPENSSL_INIT_LOAD_CONFIG, NULL);
+ }
+ 
+ #include <openssl/err.h>
