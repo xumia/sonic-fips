@@ -75,7 +75,7 @@ activate = 1
 [symcrypt_prov_sect]
 activate = 1
 identity = symcrypt
-module = /usr/lib/x86_64-linux-gnu/ossl-modules/symcryptprovider.so
+module = symcryptprovider.so
 
 
 ####################################################################
