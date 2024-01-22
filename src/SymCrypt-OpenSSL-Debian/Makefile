@@ -15,9 +15,11 @@ LIB_INSTALL_NAME = x86_64-linux-gnu
 ifeq ($(ARCH), arm64)
 CMAKE_ARCH = ARM64
 LIB_INSTALL_NAME = aarch64-linux-gnu
+CMAKE_C_FLAGS = -mno-outline-atomics
 else ifeq ($(ARCH), armhf)
 CMAKE_ARCH = ARMHF
-LIB_INSTALL_NAME = arm-linux-gnueabihf 
+LIB_INSTALL_NAME = arm-linux-gnueabihf
+CMAKE_C_FLAGS = -mno-outline-atomics
 endif
 
 INSTALL_PATH = $(BUILD_ROOT_DIR)/usr/lib/$(LIB_INSTALL_NAME)
@@ -39,7 +41,7 @@ list:
 
 $(LIBSYMCRYPT):
 	cd ../SymCrypt
-	cmake -S . -B bin -DSYMCRYPT_TARGET_ARCH=$(CMAKE_ARCH) -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+	cmake -S . -B bin -DSYMCRYPT_TARGET_ARCH=$(CMAKE_ARCH) -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) -DCMAKE_C_FLAGS=$(CMAKE_C_FLAGS) -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
 	cmake --build bin -j$(BUILD_JOBS)
 	mkdir -p $(DEST)/debug
 	cp -a bin/module/generic/libsymcrypt.so* $(DEST)/
