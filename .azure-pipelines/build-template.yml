@@ -103,6 +103,8 @@ jobs:
     displayName: 'Test openssl with fips enabled'
  
   - script: |
+      git config --global user.email sonicbld@microsoft.com
+      git config --global user.name mssonicbld
       ARCH=${{ parameters.arch }} make all
     displayName: 'Build others'
   - publish: $(System.DefaultWorkingDirectory)/target
