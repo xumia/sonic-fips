@@ -56,7 +56,7 @@ $(LIBSYMCRYPT):
 	cp -a bin/module/generic/processing/libsymcrypt.so* $(DEST)/debug/
 
 $(LIBSYMCRYPTPROVIDER): $(LIBSYMCRYPT)
-	if [ ! -f ../SymCrypt-OpenSSL/cmake-toolchain/LinuxUserMode-ARM.cmake ]; then cp LinuxUserMode-ARM.cmake
+	if [ ! -f ../SymCrypt-OpenSSL/cmake-toolchain/LinuxUserMode-ARM.cmake ]; then cp LinuxUserMode-ARM.cmake; fi
 	cd ../SymCrypt-OpenSSL
 	cp -P $(DEST)/libsymcrypt.so* ./
 	mkdir -p bin
