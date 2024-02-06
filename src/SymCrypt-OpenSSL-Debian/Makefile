@@ -44,7 +44,12 @@ list:
 
 $(LIBSYMCRYPT):
 	cd ../SymCrypt
-	python3 scripts/build.py cmake --arch $(CMAKE_ARCH_LOWER) --config Release --toolchain cmake-configs/Toolchain-GCC-ARM.cmake  bin
+	if [ "$(ARCH)" == armhf ]; then
+	    python3 scripts/build.py cmake --arch $(CMAKE_ARCH_LOWER) --config Release --toolchain cmake-configs/Toolchain-GCC-ARM.cmake bin
+	else
+	    cmake -S . -B bin -DSYMCRYPT_TARGET_ARCH=$(CMAKE_ARCH) -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) -DCMAKE_C_FLAGS=$(CMAKE_C_FLAGS) -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+	    cmake --build bin -j$(BUILD_JOBS)
+	fi
 	mkdir -p $(DEST)/debug
 	cp -a bin/module/generic/libsymcrypt.so* $(DEST)/
 	cp -a bin/module/generic/processing/libsymcrypt.so* $(DEST)/debug/
