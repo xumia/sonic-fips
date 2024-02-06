@@ -11,6 +11,9 @@ parameters:
   - name: arch
     type: string
     default: amd64
+  - name: image
+    type: string
+    default: publicmirror.azurecr.io/debian:bookworm
 
 jobs:
 - job:
@@ -18,7 +21,7 @@ jobs:
   timeoutInMinutes: 600
   pool: ${{ parameters.pool }}
   container:
-    image: publicmirror.azurecr.io/debian:bookworm
+    image: ${{ parameters.image }}
     options:  "--name ci-container -v /usr/bin/docker:/tmp/docker:ro"
   steps:
   - script: |
@@ -74,9 +77,11 @@ jobs:
       sudo mkdir -p $HOME
       sudo pip3 install --break-system-packages -r src/SymCrypt/scripts/requirements.txt
       ARCH=${{ parameters.arch }} make symcrypt
-      sudo dpkg -i target/symcrypt-openssl*.deb
-      openssl list --providers
-      openssl list --providers | grep -i symcrypt
+      if [ "${{ parameters.arch }}" != armhf ]; then
+        sudo dpkg -i target/symcrypt-openssl*.deb
+        openssl list --providers
+        openssl list --providers | grep -i symcrypt
+      fi
     displayName: 'Build and install symcrypt'
   - script: |
       set -ex
