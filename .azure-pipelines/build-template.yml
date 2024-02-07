@@ -91,7 +91,7 @@ jobs:
 
       ARCH=${{ parameters.arch }} TARGET_PATH=target-test make openssl
       echo 0 | sudo tee /etc/fips/fips_enable
-    condition: ne("${{ parameters.arch }}", "armhf")
+    condition: ne('${{ parameters.arch }}', 'armhf')
     displayName: 'Test openssl with fips enabled'
  
   - script: |
