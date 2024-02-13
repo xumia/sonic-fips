@@ -7,6 +7,7 @@ export ARCH=armhf
 # Install packages
 apt-get update && apt-get install -y sudo
 sudo .azure-pipelines/install-packages.sh
+git config --global --add safe.directory src/SymCrypt
 (cd src/SymCrypt; git submodule update --init -- 3rdparty/jitterentropy-library)
 sudo mkdir -p $HOME
 sudo pip3 install -r src/SymCrypt/scripts/requirements.txt
