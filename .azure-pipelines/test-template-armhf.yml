@@ -13,66 +13,16 @@ parameters:
 
 jobs:
 - job:
-  displayName: Build-${{ parameters.arch }}
+  displayName: Build-and-test-${{ parameters.arch }}
   timeoutInMinutes: 600
-  pool: sonicbld
-  container:
-    image: ${{ parameters.image }}
-    options:  "--name ci-container -v /usr/bin/docker:/tmp/docker:ro"
   steps:
   - script: |
-      /tmp/docker exec -t -u 0 ci-container \
-      sh -c "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confold" -y install sudo"
-    displayName: 'Install Sudo in container'
-  - script: |
+      ip a show dev eth0
       sudo rm -rf $(ls -A1)
     displayName: 'Clean Workspace'
-  - script: |
-      set -x
-      sudo mkdir -p $HOME
-      sudo chown $USER $HOME
-      sudo apt-get update
-      sudo apt-get install -y git python3-pip
-      sudo apt-get install -y cmake git make build-essential quilt debhelper bc python3 python3-pip sudo libssl-dev libgcc-10-dev
-      sudo apt-get install -y clang
-      sudo apt-get install -y openssl libssl-dev libssl1.1
-      sudo apt-get install -y dh-exec dh-runit libaudit-dev libedit-dev libfido2-dev libgtk-3-dev libkrb5-dev
-      sudo apt-get install -y libwrap-dev pkg-config
-      sudo apt-get install -y libpam-dev libselinux1-dev libsystemd-dev libwrap0-dev
-
-      mkdir -p $(Pipeline.Workspace)/target
-    displayName: 'Install packages'
   - checkout: self
     submodules: true
   - script: |
-      cd src/SymCrypt
-      git submodule update --init -- 3rdparty/jitterentropy-library
-    displayName: 'Checkout Symcrypt submodules'
-  - script: |
-      set -ex
-      sudo mkdir -p $HOME
-      sudo pip3 install -r src/SymCrypt/scripts/requirements.txt
-      ARCH=${{ parameters.arch }} make symcrypt
-      if [ "${{ parameters.arch }}" != armhf ]; then
-        sudo dpkg -i target/symcrypt-openssl*.deb
-      fi
-    displayName: 'Build and install symcrypt'
-  - script: |
-      set -ex
-      ARCH=${{ parameters.arch }} make openssl
-      sudo dpkg -i target/libssl*.deb target/openssl*.deb
-      sudo dpkg -i target/symcrypt-openssl*.deb
-    displayName: 'Build and install openssl'
-  - script: |
-      set -ex
-      sudo mkdir -p /etc/fips
-      echo 1 | sudo tee /etc/fips/fips_enable
-      openssl engine -v | grep -i symcrypt
-      pushd src/openssl
-      git clean -xdf
-      git checkout -- .
-      popd
-
-      ARCH=${{ parameters.arch }} TARGET_PATH=target-test make openssl
-      echo 0 | sudo tee /etc/fips/fips_enable
-    displayName: 'Test openssl with fips enabled'
+      docker run --rm --privileged multiarch/qemu-user-static --reset -p yes --credential yes
+      docker run --rm --privileged -v $(pwd):/work -w /work ${{ parameters.image }} .azure-pipelines/test-multiarch.sh
+    displayName: 'Run build and test'
