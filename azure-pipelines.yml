@@ -28,4 +28,4 @@ jobs:
     pool: sonicbld-armhf
     arch: armhf
     image: sonicdev-microsoft.azurecr.io/sonic-slave-bullseye-armhf
-- template: test-template-armhf.yml
+- template: .azure-pipelines/test-template-armhf.yml
