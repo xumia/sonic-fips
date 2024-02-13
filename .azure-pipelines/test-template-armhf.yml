@@ -4,6 +4,9 @@
 # https://aka.ms/yaml
 
 parameters:
+  - name: arch
+    type: string
+    default: armhf
   - name: image
     type: string
     default: publicmirror.azurecr.io/multiarch/debian-debootstrap:armhf-bullseye
