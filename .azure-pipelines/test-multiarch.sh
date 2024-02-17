@@ -11,6 +11,8 @@ sudo mkdir -p $HOME
 sudo pip3 install -r src/SymCrypt/scripts/requirements.txt
 
 # Make SymCrypt and OpenSSL
+sed -i 's/aarch32|armv8l/aarch32|armv7l|armv8l/' src/SymCrypt/cmake-configs/SymCrypt-Platforms.cmake
+sed -i 's/aarch32|armv8l/aarch32|armv7l|armv8l/' src/SymCrypt/scripts/build.py
 make symcrypt
 rm -f src/openssl/test/recipes/30-test_afalg.t
 make openssl
