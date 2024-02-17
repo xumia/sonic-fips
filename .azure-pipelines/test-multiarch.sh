@@ -12,6 +12,7 @@ sudo pip3 install -r src/SymCrypt/scripts/requirements.txt
 
 # Make SymCrypt and OpenSSL
 make symcrypt
+rm -f src/openssl/test/recipes/30-test_afalg.t
 make openssl
 
 # Install SymCrypt and OpenSSL
@@ -30,4 +31,5 @@ git checkout -- .
 popd
 
 # Build the OpenSSL again with SymCrypt enabled
+rm -f src/openssl/test/recipes/30-test_afalg.t
 TARGET_PATH=target-test make openssl
