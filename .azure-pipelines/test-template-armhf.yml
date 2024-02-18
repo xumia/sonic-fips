@@ -13,7 +13,7 @@ parameters:
 
 jobs:
 - job:
-  displayName: Build-and-test-${{ parameters.arch }}
+  displayName: Qemu-build-and-test-${{ parameters.arch }}
   timeoutInMinutes: 600
   steps:
   - script: |
@@ -23,11 +23,16 @@ jobs:
   - checkout: self
     submodules: true
   - script: |
-      (cd src/SymCrypt; git submodule update --init -- 3rdparty/jitterentropy-library)
+      pushd src/SymCrypt
+      git submodule update --init -- 3rdparty/jitterentropy-library
+    displayName: 'Checkout submodule'
+  - script: |
       docker run --rm --privileged multiarch/qemu-user-static --reset -p yes --credential yes
+      sudo pip3 install j2cli
       pushd .azure-pipelines
       DEFAULT_CONTAINER_REGISTRY=publicmirror.azurecr.io/ ARCH=armhf DIST=bullseye j2 Dockerfile.j2 > Dockerfile
       docker build --build-arg user=$USER --build-arg uid=$(id -u) --build-arg guid=$(id -g) --build-arg hostname=$HOSTNAME -t build-agent .
       popd
+  - script: |
       docker run --rm --privileged -v $(pwd):/work -w /work build-agent .azure-pipelines/test-multiarch.sh
     displayName: 'Run build and test'
