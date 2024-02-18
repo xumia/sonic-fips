@@ -25,5 +25,9 @@ jobs:
   - script: |
       (cd src/SymCrypt; git submodule update --init -- 3rdparty/jitterentropy-library)
       docker run --rm --privileged multiarch/qemu-user-static --reset -p yes --credential yes
-      docker run --rm --privileged -v $(pwd):/work -w /work ${{ parameters.image }} .azure-pipelines/test-multiarch.sh
+      pushd .azure-pipelines
+      DEFAULT_CONTAINER_REGISTRY=publicmirror.azurecr.io/ ARCH=armhf DIST=bullseye j2 Dockerfile.j2 > Dockerfile
+      docker build --build-arg user=$USER --build-arg uid=$(id -u) --build-arg guid=$(id -g) --build-arg hostname=$HOSTNAME -t build-agent .
+      popd
+      docker run --rm --privileged -v $(pwd):/work -w /work build-agent .azure-pipelines/test-multiarch.sh
     displayName: 'Run build and test'
