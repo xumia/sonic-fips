@@ -1,0 +1,80 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+parameters:
+  - name: arch
+    type: string
+    default: armhf
+  - name: dist
+    type: string
+    default: bullseye
+
+jobs:
+- job: BuildSymcrypt
+  displayName: Build-symcrypt-${{ parameters.arch }}
+  pool: sonicbld-armhf
+  container:
+    image: sonicdev-microsoft.azurecr.io/sonic-slave-${{ parameters.dist }}-armhf
+    options:  "--name ci-container -v /usr/bin/docker:/tmp/docker:ro"
+  timeoutInMinutes: 600
+  steps:
+  - script: |
+      /tmp/docker exec -t -u 0 ci-container \
+      sh -c "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confold" -y install sudo"
+    displayName: 'Install Sudo in container'
+  - script: |
+      ip a show dev eth0
+      sudo rm -rf $(ls -A1)
+    displayName: 'Clean Workspace'
+  - checkout: self
+    submodules: true
+  - script: |
+      pushd src/SymCrypt
+      git submodule update --init -- 3rdparty/jitterentropy-library
+    displayName: 'Checkout submodule'
+  - script: |
+      set -ex
+      export ARCH=${{ parameters.arch }}
+      sudo -E .azure-pipelines/install-packages.sh
+      make symcrypt
+      make openssl
+    displayName: 'Build SymCrypt OpenSSL'
+  - publish: $(System.DefaultWorkingDirectory)/target
+    artifact: test-symcrypt-${{ parameters.arch }}
+    displayName: "Archive packages"
+  - publish:  $(Build.ArtifactStagingDirectory)
+    condition: failed()
+    artifact: 'test-symcrypt-${{ parameters.arch }}-(System.JobAttempt)'
+    displayName: "Archive failed packages"
+- job: QemuTest
+  dependsOn: BuildSymcrypt
+  displayName: Qemu-test-${{ parameters.arch }}
+  pool: sonicbld
+  timeoutInMinutes: 600
+  steps:
+  - script: |
+      ip a show dev eth0
+      sudo rm -rf $(ls -A1)
+    displayName: 'Clean Workspace'
+  - checkout: self
+    submodules: true
+  - task: DownloadPipelineArtifact@2
+    inputs:
+      artifact: test-symcrypt-${{ parameters.arch }}
+      path: $(Build.SourcesDirectory)/target/
+    displayName: "Download deb packages"
+  - script: |
+      ls -l $(Build.SourcesDirectory)/target/
+    displayName: 'Show download pacakges'
+  - script: |
+      docker run --rm --privileged multiarch/qemu-user-static --reset -p yes --credential yes
+      pushd .azure-pipelines
+      DEFAULT_CONTAINER_REGISTRY=publicmirror.azurecr.io/ ARCH=${{ parameters.arch }} DIST=${{ parameters.dist }} j2 Dockerfile.j2 > Dockerfile
+      docker build --build-arg user=$USER --build-arg uid=$(id -u) --build-arg guid=$(id -g) --build-arg hostname=$HOSTNAME -t build-agent .
+      popd
+    displayName: 'Build agent image'
+  - script: |
+      docker run --rm --privileged -v $(pwd):/work -w /work build-agent .azure-pipelines/test-multiarch.sh
+    displayName: 'Run build and test'
