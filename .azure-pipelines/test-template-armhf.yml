@@ -16,7 +16,7 @@ jobs:
   displayName: Build-symcrypt-${{ parameters.arch }}
   pool: sonicbld-armhf
   container:
-    image: publicmirror.azurecr.io/debian:${{ parameters.dist }}
+    image: sonicdev-microsoft.azurecr.io/sonic-slave-${{ parameters.dist }}-armhf
     options:  "--name ci-container -v /usr/bin/docker:/tmp/docker:ro"
   timeoutInMinutes: 600
   steps:
