@@ -11,3 +11,5 @@ sudo apt-get install -y openssl libssl-dev libssl1.1
 sudo apt-get install -y dh-exec dh-runit libaudit-dev libedit-dev libfido2-dev libgtk-3-dev libkrb5-dev
 sudo apt-get install -y libwrap-dev pkg-config
 sudo apt-get install -y libpam-dev libselinux1-dev libsystemd-dev libwrap0-dev
+sudo apt-get install -y libc6-dev-armhf-cross
+sudo ln -s /usr/include/arm-linux-gnueabihf/openssl/opensslconf.h /usr/include/openssl/opensslconf.h
