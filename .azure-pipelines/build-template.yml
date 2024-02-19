@@ -68,6 +68,8 @@ jobs:
       set -ex
       sudo mkdir -p $HOME
       sudo pip3 install -r src/SymCrypt/scripts/requirements.txt
+      git config --global user.name sonicbld
+      git config --global user.email sonicbld@microsoft.com
       ARCH=${{ parameters.arch }} make symcrypt
       if [ "${{ parameters.arch }}" != armhf ]; then
         sudo dpkg -i target/symcrypt-openssl*.deb
