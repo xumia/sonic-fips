@@ -12,8 +12,8 @@ parameters:
     default: publicmirror.azurecr.io/multiarch/debian-debootstrap:armhf-bullseye
 
 jobs:
-- job: build-symcrypt-${{ parameters.arch }}
-  displayName: Qemu-build-and-test-${{ parameters.arch }}
+- job: BuildSymcrypt
+  displayName: Build-symcrypt-${{ parameters.arch }}
   pool: sonicbld-armhf
   timeoutInMinutes: 600
   steps:
@@ -40,9 +40,9 @@ jobs:
     condition: failed()
     artifact: 'test-symcrypt-${{ parameters.arch }}-(System.JobAttempt)'
     displayName: "Archive failed packages"
-- job: test-symcrypt-${{ parameters.arch }}
-  dependsOn: build-symcrypt-${{ parameters.arch }}
-  displayName: Qemu-build-and-test-${{ parameters.arch }}
+- job: QemuTest
+  dependsOn: BuildSymcrypt
+  displayName: Qemu-test-${{ parameters.arch }}
   pool: sonicbld
   timeoutInMinutes: 600
   steps:

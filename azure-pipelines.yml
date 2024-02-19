@@ -17,15 +17,20 @@ pr:
     include:
       - main
 
-jobs:
-- template: .azure-pipelines/build-template.yml
-- template: .azure-pipelines/build-template.yml
-  parameters:
-    pool: sonicbld-arm64
-    arch: arm64
-- template: .azure-pipelines/build-template.yml
-  parameters:
-    pool: sonicbld-armhf
-    arch: armhf
-    image: sonicdev-microsoft.azurecr.io/sonic-slave-bullseye-armhf
-- template: .azure-pipelines/test-template-armhf.yml
+stages:
+- stage: build
+  jobs:
+  - template: .azure-pipelines/build-template.yml
+  - template: .azure-pipelines/build-template.yml
+    parameters:
+      pool: sonicbld-arm64
+      arch: arm64
+  - template: .azure-pipelines/build-template.yml
+    parameters:
+      pool: sonicbld-armhf
+      arch: armhf
+      image: sonicdev-microsoft.azurecr.io/sonic-slave-bullseye-armhf
+- stage: test
+  dependsOn: []
+  jobs:
+  - template: .azure-pipelines/test-template-armhf.yml
