@@ -12,8 +12,9 @@ parameters:
     default: publicmirror.azurecr.io/multiarch/debian-debootstrap:armhf-bullseye
 
 jobs:
-- job:
+- job: build-symcrypt-${{ parameters.arch }}
   displayName: Qemu-build-and-test-${{ parameters.arch }}
+  pool: sonicbld-armhf
   timeoutInMinutes: 600
   steps:
   - script: |
@@ -27,12 +28,45 @@ jobs:
       git submodule update --init -- 3rdparty/jitterentropy-library
     displayName: 'Checkout submodule'
   - script: |
+      set -ex
+      export ARCH=${{ parameters.arch }}
+      sudo -E .azure-pipelines/install-packages.sh
+      make symcrypt
+      make openssl
+  - publish: $(System.DefaultWorkingDirectory)/target
+    artifact: test-symcrypt-${{ parameters.arch }}
+    displayName: "Archive packages"
+  - publish:  $(Build.ArtifactStagingDirectory)
+    condition: failed()
+    artifact: 'test-symcrypt-${{ parameters.arch }}-(System.JobAttempt)'
+    displayName: "Archive failed packages"
+- job: test-symcrypt-${{ parameters.arch }}
+  dependsOn: build-symcrypt-${{ parameters.arch }}
+  displayName: Qemu-build-and-test-${{ parameters.arch }}
+  pool: sonicbld
+  timeoutInMinutes: 600
+  steps:
+  - script: |
+      ip a show dev eth0
+      sudo rm -rf $(ls -A1)
+    displayName: 'Clean Workspace'
+  - checkout: self
+    submodules: true
+  - task: DownloadPipelineArtifact@2
+    inputs:
+      artifact: test-symcrypt-${{ parameters.arch }}
+      path: $(Build.SourcesDirectory)/target/
+    displayName: "Download deb packages"
+  - script: |
+      ls -l $(Build.SourcesDirectory)/target/
+    displayName: 'Show download pacakges'
+  - script: |
       docker run --rm --privileged multiarch/qemu-user-static --reset -p yes --credential yes
-      sudo pip3 install j2cli
       pushd .azure-pipelines
-      DEFAULT_CONTAINER_REGISTRY=publicmirror.azurecr.io/ ARCH=armhf DIST=bullseye j2 Dockerfile.j2 > Dockerfile
+      DEFAULT_CONTAINER_REGISTRY=publicmirror.azurecr.io/ ARCH=${{ parameters.arch }} DIST=bullseye j2 Dockerfile.j2 > Dockerfile
       docker build --build-arg user=$USER --build-arg uid=$(id -u) --build-arg guid=$(id -g) --build-arg hostname=$HOSTNAME -t build-agent .
       popd
+    displayName: 'Build agent image'
   - script: |
       docker run --rm --privileged -v $(pwd):/work -w /work build-agent .azure-pipelines/test-multiarch.sh
     displayName: 'Run build and test'
