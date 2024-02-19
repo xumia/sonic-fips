@@ -56,7 +56,7 @@ $(LIBSYMCRYPT):
 
 $(LIBSYMCRYPTENGINE): $(LIBSYMCRYPT)
 	cd ../SymCrypt-OpenSSL
-	if [ ! -f cmake-toolchain/LinuxUserMode-ARM.cmake ]; then git cherry-pick 8ee9ee42c983b09dc2b9a1dbc4af1c75d92c7e83; fi
+	if [ "$(ARCH)" == armhf ] && [ ! -f cmake-toolchain/LinuxUserMode-ARM.cmake ]; then git cherry-pick 8ee9ee42c983b09dc2b9a1dbc4af1c75d92c7e83; fi
 	cp -P $(DEST)/libsymcrypt.so* ./
 	mkdir -p bin
 	cd bin
