@@ -7,16 +7,23 @@ parameters:
   - name: arch
     type: string
     default: armhf
-  - name: image
+  - name: dist
     type: string
-    default: publicmirror.azurecr.io/multiarch/debian-debootstrap:armhf-bullseye
+    default: bullseye
 
 jobs:
 - job: BuildSymcrypt
   displayName: Build-symcrypt-${{ parameters.arch }}
   pool: sonicbld-armhf
+  container:
+    image: publicmirror.azurecr.io/debian:${{ parameters.dist }}
+    options:  "--name ci-container -v /usr/bin/docker:/tmp/docker:ro"
   timeoutInMinutes: 600
   steps:
+  - script: |
+      /tmp/docker exec -t -u 0 ci-container \
+      sh -c "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confold" -y install sudo"
+    displayName: 'Install Sudo in container'
   - script: |
       ip a show dev eth0
       sudo rm -rf $(ls -A1)
@@ -33,6 +40,7 @@ jobs:
       sudo -E .azure-pipelines/install-packages.sh
       make symcrypt
       make openssl
+    displayName: 'Build SymCrypt OpenSSL'
   - publish: $(System.DefaultWorkingDirectory)/target
     artifact: test-symcrypt-${{ parameters.arch }}
     displayName: "Archive packages"
@@ -63,7 +71,7 @@ jobs:
   - script: |
       docker run --rm --privileged multiarch/qemu-user-static --reset -p yes --credential yes
       pushd .azure-pipelines
-      DEFAULT_CONTAINER_REGISTRY=publicmirror.azurecr.io/ ARCH=${{ parameters.arch }} DIST=bullseye j2 Dockerfile.j2 > Dockerfile
+      DEFAULT_CONTAINER_REGISTRY=publicmirror.azurecr.io/ ARCH=${{ parameters.arch }} DIST=${{ parameters.dist }} j2 Dockerfile.j2 > Dockerfile
       docker build --build-arg user=$USER --build-arg uid=$(id -u) --build-arg guid=$(id -g) --build-arg hostname=$HOSTNAME -t build-agent .
       popd
     displayName: 'Build agent image'
