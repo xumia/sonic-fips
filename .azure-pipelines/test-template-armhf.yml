@@ -48,7 +48,7 @@ jobs:
     displayName: "Archive packages"
   - publish:  $(Build.ArtifactStagingDirectory)
     condition: failed()
-    artifact: 'test-symcrypt-${{ parameters.arch }}-(System.JobAttempt)'
+    artifact: 'test-symcrypt-${{ parameters.arch }}-$(System.JobAttempt)'
     displayName: "Archive failed packages"
 - job: QemuTest
   dependsOn: BuildSymcrypt
