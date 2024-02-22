@@ -27,6 +27,9 @@ RUN useradd $user -l -u $uid -g $guid -d /var/$user -m -s /bin/bash
 
 RUN apt-get update && apt-get install -y git sudo wget
 
+COPY [ "install-packages.sh", "/usr/bin" ]
+RUN ARCH={{ ARCH }} install-packages.sh
+
 # Config git for stg
 RUN su $user -c "git config --global user.name $user"
 RUN su $user -c "git config --global user.email $user@contoso.com"

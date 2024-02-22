@@ -6,7 +6,6 @@ export ARCH=armhf
 
 # Install packages
 apt-get update && apt-get install -y sudo
-sudo -E .azure-pipelines/install-packages.sh
 sudo mkdir -p $HOME
 
 # Make SymCrypt and OpenSSL
