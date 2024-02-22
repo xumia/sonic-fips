@@ -109,9 +109,9 @@ jobs:
     condition: and(succeeded(), ${{ eq(parameters.buildOthers, true) }})
     displayName: 'Build others'
   - publish: $(System.DefaultWorkingDirectory)/target
-    artifact: ${{ parameters.artifactNamePrefix }}-${{ parameters.arch }}
+    artifact: ${{ parameters.artifactNamePrefix }}${{ parameters.arch }}
     displayName: "Archive packages"
   - publish:  $(Build.ArtifactStagingDirectory)
     condition: failed()
-    artifact: '${{ parameters.artifactNamePrefix }}-${{ parameters.arch }}-(System.JobAttempt)'
+    artifact: '${{ parameters.artifactNamePrefix }}${{ parameters.arch }}-(System.JobAttempt)'
     displayName: "Archive failed packages"
