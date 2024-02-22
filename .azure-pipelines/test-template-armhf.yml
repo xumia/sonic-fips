@@ -36,10 +36,12 @@ jobs:
     displayName: 'Checkout submodule'
   - script: |
       set -ex
+      sudo mkdir -p $HOME
+      sudo chown $USER $HOME
+      git config --global user.email sonicbld@microsoft.com
+      git config --global user.name mssonicbld
       export ARCH=${{ parameters.arch }}
       sudo -E .azure-pipelines/install-packages.sh
-      git config --global user.name sonicbld
-      git config --global user.email sonicbld@microsoft.com
       make symcrypt
       make openssl
     displayName: 'Build SymCrypt OpenSSL'
