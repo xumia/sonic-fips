@@ -12,7 +12,7 @@ parameters:
     default: bullseye
 
 jobs:
-- template: .azure-pipelines/build-template.yml
+- template: build-template.yml
   parameters:
     pool: sonicbld-armhf
     arch: armhf
