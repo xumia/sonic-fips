@@ -20,7 +20,7 @@ jobs:
     artifactNamePrefix: test-symcrypt-
     buildOthers: false
 - job: QemuTest
-  dependsOn: BuildSymcrypt
+  dependsOn: Build${{ parameters.arch }}
   displayName: Qemu-test-${{ parameters.arch }}
   pool: sonicbld
   timeoutInMinutes: 600

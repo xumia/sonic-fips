@@ -22,7 +22,7 @@ parameters:
     default: fips-symcrypt-
 
 jobs:
-- job:
+- job: Build${{ parameters.arch }}
   displayName: Build-${{ parameters.arch }}
   timeoutInMinutes: 600
   pool: ${{ parameters.pool }}
