@@ -9,10 +9,10 @@ Subject: [PATCH] Support to enable SymCrypt provider by SONIC_FIPS in kernel
  1 file changed, 61 insertions(+), 1 deletion(-)
 
 diff --git a/crypto/context.c b/crypto/context.c
-index 51002ba79a..36efa7cac0 100644
+index dbeb881b45..2ee8ae85a8 100644
 --- a/crypto/context.c
 +++ b/crypto/context.c
-@@ -22,6 +22,66 @@
+@@ -23,6 +23,64 @@
  # include <unistd.h>
  # include <openssl/evp.h>
  
@@ -74,19 +74,17 @@ index 51002ba79a..36efa7cac0 100644
 +    return 0;
 +}
 +
-+
-+
  # define FIPS_MODE_SWITCH_FILE "/proc/sys/crypto/fips_enabled"
  
  static int kernel_fips_flag;
-@@ -38,7 +98,7 @@ static void read_kernel_fips_flag(void)
- 		close(fd);
- 	}
+@@ -39,7 +97,7 @@ static void read_kernel_fips_flag(void)
+                close(fd);
+        }
  
--	if (buf[0] == '1') {
-+	if (buf[0] == '1' || oss_fips_enabled_check() > 0) {
- 		kernel_fips_flag = 1;
- 	}
+-       if (buf[0] == '1') {
++       if (buf[0] == '1' || oss_fips_enabled_check() > 0) {
+                kernel_fips_flag = 1;
+        }
  
 -- 
 2.39.2
