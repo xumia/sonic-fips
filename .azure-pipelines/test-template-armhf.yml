@@ -40,12 +40,18 @@ jobs:
       ls -l $(Build.SourcesDirectory)/target/
     displayName: 'Show download pacakges'
   - script: |
+      set -ex
       docker run --rm --privileged multiarch/qemu-user-static --reset -p yes --credential yes
       pushd .azure-pipelines
       DEFAULT_CONTAINER_REGISTRY=publicmirror.azurecr.io/ ARCH=${{ parameters.arch }} DIST=${{ parameters.dist }} j2 Dockerfile.j2 > Dockerfile
       docker build --build-arg user=$USER --build-arg uid=$(id -u) --build-arg guid=$(id -g) --build-arg hostname=$HOSTNAME -t build-agent .
       popd
     displayName: 'Build agent image'
+  - script: |
+      set -ex
+      chmod a+x target/debug/exe/symcryptunittest
+      docker run --rm --privileged -v $(pwd):/work -w /work build-agent bash -c 'target/debug/exe/symcryptunittest'
+    displayName: 'Run Symcrypt unit test'
   - script: |
       docker run --rm --privileged -v $(pwd):/work -w /work build-agent .azure-pipelines/test-multiarch.sh
     displayName: 'Run build and test'

@@ -76,8 +76,10 @@ jobs:
       sudo pip3 install -r src/SymCrypt/scripts/requirements.txt
       git config --global user.name sonicbld
       git config --global user.email sonicbld@microsoft.com
-      ARCH=${{ parameters.arch }} make symcrypt
-      if [ "${{ parameters.arch }}" != armhf ]; then
+      if [ "${{ parameters.arch }}" == armhf ]; then
+        ARCH=${{ parameters.arch }} SYMCRYPT_TEST=n make symcrypt
+      else
+        ARCH=${{ parameters.arch }} make symcrypt
         sudo dpkg -i target/symcrypt-openssl*.deb
       fi
     displayName: 'Build and install symcrypt'

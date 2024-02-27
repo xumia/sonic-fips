@@ -9,6 +9,7 @@ BUILD_NAME = symcrypt-openssl
 SYMCRYPT_OPENSSL_VERSION ?= 0.1
 SYMCRYPT_PACKAGE = $(BUILD_NAME)_$(SYMCRYPT_OPENSSL_VERSION)_$(ARCH).deb
 BUILD_ROOT_DIR = tmp/$(BUILD_NAME)
+SYMCRYPT_TEST ?= y
 
 CMAKE_ARCH = AMD64
 SYMCRYPT_USE_ASM = ON
@@ -50,9 +51,11 @@ $(LIBSYMCRYPT):
 	    cmake -S . -B bin -DSYMCRYPT_TARGET_ARCH=$(CMAKE_ARCH) -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) -DCMAKE_C_FLAGS=$(CMAKE_C_FLAGS) -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
 	    cmake --build bin -j$(BUILD_JOBS)
 	fi
+	if [ "$(SYMCRYPT_TEST)" == "y" ]; then bin/exe/symcryptunittest; fi
 	mkdir -p $(DEST)/debug
 	cp -a bin/module/generic/libsymcrypt.so* $(DEST)/
 	cp -a bin/module/generic/processing/libsymcrypt.so* $(DEST)/debug/
+	cp -r bin/exe $(DEST)/debug/
 
 $(LIBSYMCRYPTENGINE): $(LIBSYMCRYPT)
 	cd ../SymCrypt-OpenSSL
