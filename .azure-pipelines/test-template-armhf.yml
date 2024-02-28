@@ -50,7 +50,15 @@ jobs:
   - script: |
       set -ex
       chmod a+x target/debug/exe/symcryptunittest
-      docker run --rm --privileged -t -v $(pwd):/work -w /work build-agent bash -c 'target/debug/exe/symcryptunittest'
+      sudo apt install -y debootstrap
+      sudo debootstrap --variant=minbase --arch ${{ parameters.arch }} ${{ parameters.dist }} fsroot http://deb.debian.org/debian
+      sudo chroot fsroot apt update
+      sudo chroot fsroot apt install -y qemu-user
+      sudo cp target/debug/exe/symcryptunittest fsroot/root/
+    displayName: 'Build the base image'
+  - script: |
+      set -ex
+      sudo chroot fsroot qemu-arm /root/symcryptunittest
     displayName: 'Run Symcrypt unit test'
   - script: |
       docker run --rm --privileged -t -v $(pwd):/work -w /work build-agent .azure-pipelines/test-multiarch.sh
