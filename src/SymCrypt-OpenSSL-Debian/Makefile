@@ -12,7 +12,6 @@ BUILD_ROOT_DIR = tmp/$(BUILD_NAME)
 SYMCRYPT_TEST ?= y
 
 CMAKE_ARCH = AMD64
-SYMCRYPT_USE_ASM = ON
 LIB_INSTALL_NAME = x86_64-linux-gnu
 ifeq ($(ARCH), arm64)
 CMAKE_ARCH = ARM64
@@ -20,7 +19,6 @@ LIB_INSTALL_NAME = aarch64-linux-gnu
 else ifeq ($(ARCH), armhf)
 CMAKE_ARCH = ARM
 LIB_INSTALL_NAME = arm-linux-gnueabihf
-SYMCRYPT_USE_ASM = OFF
 BUILD_JOBS = 1
 endif
 

@@ -50,8 +50,8 @@ jobs:
   - script: |
       set -ex
       chmod a+x target/debug/exe/symcryptunittest
-      docker run --rm --privileged -v $(pwd):/work -w /work build-agent bash -c 'target/debug/exe/symcryptunittest'
+      docker run --rm --privileged -t -v $(pwd):/work -w /work build-agent bash -c 'target/debug/exe/symcryptunittest'
     displayName: 'Run Symcrypt unit test'
   - script: |
-      docker run --rm --privileged -v $(pwd):/work -w /work build-agent .azure-pipelines/test-multiarch.sh
+      docker run --rm --privileged -t -v $(pwd):/work -w /work build-agent .azure-pipelines/test-multiarch.sh
     displayName: 'Run build and test'
