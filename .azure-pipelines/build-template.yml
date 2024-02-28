@@ -87,7 +87,6 @@ jobs:
       set -ex
       ARCH=${{ parameters.arch }} make openssl
       sudo dpkg -i target/libssl*.deb target/openssl*.deb
-      sudo dpkg -i target/symcrypt-openssl*.deb
     displayName: 'Build and install openssl'
   - script: |
       set -ex
