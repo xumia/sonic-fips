@@ -1,0 +1,65 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+parameters:
+  - name: arch
+    type: string
+    default: armhf
+  - name: dist
+    type: string
+    default: bullseye
+
+jobs:
+- template: build-template.yml
+  parameters:
+    pool: sonicbld-armhf
+    arch: armhf
+    image: sonicdev-microsoft.azurecr.io/sonic-slave-bullseye-armhf
+    artifactNamePrefix: test-symcrypt-
+    buildOthers: false
+- job: QemuTest
+  dependsOn: Build${{ parameters.arch }}
+  displayName: Qemu-test-${{ parameters.arch }}
+  pool: sonicbld
+  timeoutInMinutes: 600
+  steps:
+  - script: |
+      ip a show dev eth0
+      sudo rm -rf $(ls -A1)
+    displayName: 'Clean Workspace'
+  - checkout: self
+    submodules: true
+  - task: DownloadPipelineArtifact@2
+    inputs:
+      artifact: test-symcrypt-${{ parameters.arch }}
+      path: $(Build.SourcesDirectory)/target/
+    displayName: "Download deb packages"
+  - script: |
+      ls -l $(Build.SourcesDirectory)/target/
+    displayName: 'Show download pacakges'
+  - script: |
+      set -ex
+      docker run --rm --privileged multiarch/qemu-user-static --reset -p yes --credential yes
+      pushd .azure-pipelines
+      DEFAULT_CONTAINER_REGISTRY=publicmirror.azurecr.io/ ARCH=${{ parameters.arch }} DIST=${{ parameters.dist }} j2 Dockerfile.j2 > Dockerfile
+      docker build --build-arg user=$USER --build-arg uid=$(id -u) --build-arg guid=$(id -g) --build-arg hostname=$HOSTNAME -t build-agent .
+      popd
+    displayName: 'Build agent image'
+  - script: |
+      set -ex
+      chmod a+x target/debug/exe/symcryptunittest
+      sudo apt install -y debootstrap
+      sudo debootstrap --variant=minbase --arch ${{ parameters.arch }} ${{ parameters.dist }} fsroot http://deb.debian.org/debian
+      sudo chroot fsroot apt update
+      sudo chroot fsroot apt install -y qemu-user
+      sudo cp target/debug/exe/symcryptunittest fsroot/root/
+    displayName: 'Build the base image'
+  - script: |
+      set -ex
+      sudo chroot fsroot qemu-arm /root/symcryptunittest
+    displayName: 'Run Symcrypt unit test'
+  - script: |
+      docker run --rm --privileged -t -v $(pwd):/work -w /work build-agent .azure-pipelines/test-multiarch.sh
+    displayName: 'Run build and test'
