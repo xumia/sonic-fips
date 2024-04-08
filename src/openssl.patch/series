@@ -1,3 +1,4 @@
 0009-Add-Kernel-FIPS-mode-flag-support.patch
 0032-Force-fips.patch
 1000-Support-to-enable-symcrypt-provider.patch
+10-support-fips-mode.patch

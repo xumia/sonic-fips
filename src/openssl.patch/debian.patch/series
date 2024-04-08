@@ -1,0 +1,3 @@
+20-support-fips-test.patch
+40-disable-test-cases-with-fips-enabled.patch
+fix-test-Check-CMS-failure-during-BIO-setup-with-stream-is-handled.patch
