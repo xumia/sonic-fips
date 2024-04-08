@@ -65,7 +65,7 @@ index c13c887c3d..4b38e1f77b 100644
 +        if (path != NULL)
 +            ossl_provider_set_module_path(prov, path);
 +
-+        ok = provider_conf_params(prov, NULL, NULL, value, cnf);
++        ok = cnf ? provider_conf_params(prov, NULL, NULL, value, cnf) : 1;
 +
 +        if (ok) {
 +            if (!ossl_provider_activate(prov, 1, 0)) {
