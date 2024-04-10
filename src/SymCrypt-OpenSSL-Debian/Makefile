@@ -67,6 +67,7 @@ $(LIBSYMCRYPTPROVIDER): $(LIBSYMCRYPT)
 	cmake --build .
 	rm ../libsymcrypt.so*
 	cp -a SymCryptProvider/symcryptprovider.so $(LIBSYMCRYPTPROVIDER)
+	cp -a SymCryptEngine/dynamic/symcryptengine.so $(LIBSYMCRYPTENGINE)
 
 $(LIBSYMCRYPTPROVIDER)-bk:
 	wget https://sonicstorage.blob.core.windows.net/public/fips/bookworm/amd64/symcrypt/SymCryptProvider-103.4.0.tar.gz
@@ -80,6 +81,7 @@ $(TARGET): $(DEPENDS)
 	mkdir -p $(PROVIDERS_PATH)
 	mkdir -p $(DEBIAN_DIR)
 	mkdir -p $(BUILD_ROOT_DIR)/etc/ssl
+	mkdir -p $(ENGINES_PATH)
 	cp -a $(DEST)/libsymcrypt.so* $(INSTALL_PATH)/
 	cp $(LIBSYMCRYPTENGINE) $(INSTALL_PATH)/
 	cp -a $(LIBSYMCRYPTPROVIDER) $(PROVIDERS_PATH)/
