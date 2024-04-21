@@ -9,7 +9,7 @@ parameters:
     default: armhf
   - name: dist
     type: string
-    default: bullseye
+    default: bookworm
 
 jobs:
 - template: build-template.yml
