@@ -1,6 +1,4 @@
-fix-test-Check-CMS-failure-during-BIO-setup-with-stream-is-handled.patch
 20-support-fips-test.patch
-30-disable-some-evppkey-tests-for-fips.patch
 40-disable-test-cases-with-fips-enabled.patch
-50-disable-some-evpciph-test-for-fips.patch
-60-disable-evpmac-tests-for-fips.patch
+70-disable-evp-iv-check.patch
+fix-test-Check-CMS-failure-during-BIO-setup-with-stream-is-handled.patch
