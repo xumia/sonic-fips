@@ -100,8 +100,21 @@ jobs:
       git checkout -- .
       popd
 
-      ARCH=${{ parameters.arch }} TARGET_PATH=target-test make openssl
-      echo 0 | sudo tee /etc/fips/fips_enable
+      if ARCH=${{ parameters.arch }} TARGET_PATH=target-test make openssl; then
+        echo 0 | sudo tee /etc/fips/fips_enable
+      fi
+    condition: and(succeeded(), ne('${{ parameters.arch }}', 'armhf'))
+    displayName: 'Test openssl with fips enabled'
+
+  - script: |
+      set -ex
+      if [ "$(cat /etc/fips/fips_enable)" != "0" ]; then
+        TESTS=$(cat src/openssl.patch/skipped-openssl-tests.conf | sed 's/^/-/' | xargs)
+        pushd src/openssl/build_shared
+        make TESTS="$TESTS" test
+        popd
+        echo 0 | sudo tee /etc/fips/fips_enable
+      fi
     condition: and(succeeded(), ne('${{ parameters.arch }}', 'armhf'))
     displayName: 'Test openssl with fips enabled'
  
