@@ -21,6 +21,8 @@ stages:
 - stage: build
   jobs:
   - template: .azure-pipelines/build-template.yml
+    parameters:
+    pool: sonicbld
   - template: .azure-pipelines/build-template.yml
     parameters:
       pool: sonicbld-arm64

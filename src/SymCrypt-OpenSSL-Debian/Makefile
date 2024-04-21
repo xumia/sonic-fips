@@ -16,25 +16,30 @@ LIB_INSTALL_NAME = x86_64-linux-gnu
 ifeq ($(ARCH), arm64)
 CMAKE_ARCH = ARM64
 LIB_INSTALL_NAME = aarch64-linux-gnu
+CMAKE_C_FLAGS = -mno-outline-atomics
 else ifeq ($(ARCH), armhf)
 CMAKE_ARCH = ARM
 LIB_INSTALL_NAME = arm-linux-gnueabihf
+CMAKE_C_FLAGS = -mno-outline-atomics
+SYMCRYPT_USE_ASM = OFF
 BUILD_JOBS = 1
 endif
 
 CMAKE_ARCH_LOWER = $(shell echo $(CMAKE_ARCH) | tr '[:upper:]' '[:lower:]')
 
 INSTALL_PATH = $(BUILD_ROOT_DIR)/usr/lib/$(LIB_INSTALL_NAME)
-ENGINES_PATH = $(INSTALL_PATH)/engines-1.1
+ENGINES_PATH = $(INSTALL_PATH)/engines-3
+PROVIDERS_PATH = $(INSTALL_PATH)/ossl-modules
 DEBIAN_DIR = $(BUILD_ROOT_DIR)/DEBIAN
 
 ROOT_PATH = $(shell realpath $(shell pwd)/../..)
 DEST ?= $(ROOT_PATH)/target
 LIBSYMCRYPT = $(DEST)/libsymcrypt.so
 LIBSYMCRYPTENGINE = $(DEST)/libsymcryptengine.so
+LIBSYMCRYPTPROVIDER = $(DEST)/symcryptprovider.so
 TARGET = $(DEST)/$(SYMCRYPT_PACKAGE)
 
-DEPENDS := $(LIBSYMCRYPT) $(LIBSYMCRYPTENGINE)
+DEPENDS := $(LIBSYMCRYPT) $(LIBSYMCRYPTPROVIDER)
 
 all: $(TARGET)
 
@@ -55,7 +60,8 @@ $(LIBSYMCRYPT):
 	cp -a bin/module/generic/processing/libsymcrypt.so* $(DEST)/debug/
 	cp -r bin/exe $(DEST)/debug/
 
-$(LIBSYMCRYPTENGINE): $(LIBSYMCRYPT)
+$(LIBSYMCRYPTPROVIDER): $(LIBSYMCRYPT)
+	if [ ! -f ../SymCrypt-OpenSSL/cmake-toolchain/LinuxUserMode-ARM.cmake ]; then cp LinuxUserMode-ARM.cmake; fi
 	cd ../SymCrypt-OpenSSL
 	if [ "$(ARCH)" == armhf ] && [ ! -f cmake-toolchain/LinuxUserMode-ARM.cmake ]; then git cherry-pick 8ee9ee42c983b09dc2b9a1dbc4af1c75d92c7e83; fi
 	cp -P $(DEST)/libsymcrypt.so* ./
@@ -64,18 +70,28 @@ $(LIBSYMCRYPTENGINE): $(LIBSYMCRYPT)
 	cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake-toolchain/LinuxUserMode-$(CMAKE_ARCH).cmake -DSYMCRYPT_ROOT_DIR=$(ROOT_PATH)/src/SymCrypt -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE)
 	cmake --build .
 	rm ../libsymcrypt.so*
-	cp SymCryptEngine/dynamic/symcryptengine.so $(LIBSYMCRYPTENGINE)
+	cp -a SymCryptProvider/symcryptprovider.so $(LIBSYMCRYPTPROVIDER)
+	cp -a SymCryptEngine/dynamic/symcryptengine.so $(LIBSYMCRYPTENGINE)
+
+$(LIBSYMCRYPTPROVIDER)-bk:
+	wget https://sonicstorage.blob.core.windows.net/public/fips/bookworm/amd64/symcrypt/SymCryptProvider-103.4.0.tar.gz
+	mkdir -p SymCryptProvider
+	tar -xzf SymCryptProvider-103.4.0.tar.gz -C SymCryptProvider
+	cp -a SymCryptProvider/lib/libsymcrypt.so* $(DEST)/
+	cp -a SymCryptProvider/symcryptprovider.so $(DEST)/
 
 $(TARGET): $(DEPENDS)
 	mkdir -p $(INSTALL_PATH)
-	mkdir -p $(ENGINES_PATH)
+	mkdir -p $(PROVIDERS_PATH)
 	mkdir -p $(DEBIAN_DIR)
-	mkdir -p $(BUILD_ROOT_DIR)/usr/lib/ssl
+	mkdir -p $(BUILD_ROOT_DIR)/etc/ssl
+	mkdir -p $(ENGINES_PATH)
 	cp -a $(DEST)/libsymcrypt.so* $(INSTALL_PATH)/
-	cp $(LIBSYMCRYPTENGINE) $(INSTALL_PATH)
+	cp $(LIBSYMCRYPTENGINE) $(INSTALL_PATH)/
+	cp -a $(LIBSYMCRYPTPROVIDER) $(PROVIDERS_PATH)/
 	ln -sf $(shell basename $(LIBSYMCRYPTENGINE)) $(INSTALL_PATH)/symcryptengine.so
 	ln -sf ../$(shell basename $(LIBSYMCRYPTENGINE)) $(ENGINES_PATH)/symcryptengine.so
-	chmod o+r $(INSTALL_PATH)/*
 	cp -rf debian/* $(DEBIAN_DIR)/
-	cp openssl.cnf $(BUILD_ROOT_DIR)/usr/lib/ssl/openssl-fips.cnf
+	chmod a+r -R $(INSTALL_PATH)/
+	cp openssl.cnf $(BUILD_ROOT_DIR)/etc/ssl/openssl-fips.cnf
 	fakeroot dpkg-deb --build $(BUILD_ROOT_DIR) $(TARGET)
