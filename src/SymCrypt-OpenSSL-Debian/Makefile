@@ -93,5 +93,4 @@ $(TARGET): $(DEPENDS)
 	ln -sf ../$(shell basename $(LIBSYMCRYPTENGINE)) $(ENGINES_PATH)/symcryptengine.so
 	cp -rf debian/* $(DEBIAN_DIR)/
 	chmod a+r -R $(INSTALL_PATH)/
-	cp openssl.cnf $(BUILD_ROOT_DIR)/etc/ssl/openssl-fips.cnf
 	fakeroot dpkg-deb --build $(BUILD_ROOT_DIR) $(TARGET)
