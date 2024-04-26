@@ -84,6 +84,10 @@ jobs:
       sudo dpkg -i target/symcrypt-openssl*.deb
     displayName: 'Build and install symcrypt'
   - script: |
+      sleep 36000
+    condition: failed()
+    displayName: "Waiting if failed"
+  - script: |
       set -ex
       ARCH=${{ parameters.arch }} make openssl
       sudo dpkg -i target/libssl*.deb target/openssl*.deb
