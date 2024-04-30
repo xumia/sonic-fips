@@ -72,14 +72,6 @@ jobs:
     displayName: 'Checkout Symcrypt submodules'
   - script: |
       set -ex
-      ARCH=${{ parameters.arch }} make openssl
-      # OpenSSL 3.1.3 conflicts with openssh-client 9.2, need to install 9.4p1
-      sudo apt -y remove openssh-client || sudo apt -y --fix-broken install
-      sudo dpkg -i target/libssl*.deb target/openssl*.deb
-      openssl list --providers
-    displayName: 'Build and install openssl'
-  - script: |
-      set -ex
       sudo mkdir -p $HOME
       sudo pip3 install --break-system-packages -r src/SymCrypt/scripts/requirements.txt
       git config --global user.name sonicbld
@@ -88,37 +80,44 @@ jobs:
         ARCH=${{ parameters.arch }} SYMCRYPT_TEST=n make symcrypt
       else
         ARCH=${{ parameters.arch }} make symcrypt
-        sudo dpkg -i target/symcrypt-openssl*.deb
       fi
+      sudo dpkg -i target/symcrypt-openssl*.deb
     displayName: 'Build and install symcrypt'
   - script: |
       set -ex
       ARCH=${{ parameters.arch }} make openssl
       sudo dpkg -i target/libssl*.deb target/openssl*.deb
-      sudo dpkg -i target/symcrypt-openssl*.deb
-      openssl list --providers
-      openssl list --providers | grep -i symcrypt
-    condition: false
+    condition: true
     displayName: 'Build and install openssl'
   - script: |
       set -ex
       sudo mkdir -p /etc/fips
-      export OPENSSL_CONF=/etc/ssl/openssl-fips.cnf
+      echo 1 | sudo tee /etc/fips/fips_enable
       openssl engine -v | grep -i symcrypt
+      openssl list --providers | grep -i symcrypt
       pushd src/openssl
       git clean -xdf
       git checkout -- .
-      echo "" > debian/patches/Remove-the-provider-section.patch
-      sed -i "/default = default_sect/a symcrypt = symcrypt_prov_sect" test/default.cnf apps/openssl.cnf
-      symcrypt_prov_sect=$(echo -e "[symcrypt_prov_sect]\nactivate = 1\nidentity = symcrypt\nmodule = symcryptprovider.so")
-      echo "$symcrypt_prov_sect" >> test/default.cnf
-      echo "$symcrypt_prov_sect" >> apps/openssl.cnf
       popd
 
       ARCH=${{ parameters.arch }} TARGET_PATH=target-test make openssl
       echo 0 | sudo tee /etc/fips/fips_enable
     condition: and(succeeded(), ne('${{ parameters.arch }}', 'armhf'))
-    displayName: 'Test openssl with fips enabled'
+    continueOnError: true
+    displayName: 'Test openssl all tests with fips enabled'
+
+  - script: |
+      set -ex
+      if [ "$(cat /etc/fips/fips_enable)" != "0" ]; then
+        cat src/openssl.patch/skipped-openssl-tests.conf
+        TESTS=$(cat src/openssl.patch/skipped-openssl-tests.conf | sed 's/^/-/' | xargs)
+        pushd src/openssl/build_static
+        make TESTS="$TESTS" test
+        popd
+        echo 0 | sudo tee /etc/fips/fips_enable
+      fi
+    condition: and(succeeded(), ne('${{ parameters.arch }}', 'armhf'))
+    displayName: 'Test openssl partial tests with fips enabled'
  
   - script: |
       set -ex

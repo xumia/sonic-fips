@@ -20,8 +20,6 @@ CMAKE_C_FLAGS = -mno-outline-atomics
 else ifeq ($(ARCH), armhf)
 CMAKE_ARCH = ARM
 LIB_INSTALL_NAME = arm-linux-gnueabihf
-CMAKE_C_FLAGS = -mno-outline-atomics
-SYMCRYPT_USE_ASM = OFF
 BUILD_JOBS = 1
 endif
 
@@ -49,7 +47,7 @@ list:
 $(LIBSYMCRYPT):
 	cd ../SymCrypt
 	if [ "$(ARCH)" == armhf ]; then
-	    python3 scripts/build.py cmake --arch $(CMAKE_ARCH_LOWER) --config Release --toolchain cmake-configs/Toolchain-GCC-ARM.cmake bin
+	    python3 scripts/build.py cmake --arch $(CMAKE_ARCH_LOWER) --config $(CMAKE_BUILD_TYPE) --toolchain cmake-configs/Toolchain-GCC-ARM.cmake bin
 	else
 	    cmake -S . -B bin -DSYMCRYPT_TARGET_ARCH=$(CMAKE_ARCH) -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) -DCMAKE_C_FLAGS=$(CMAKE_C_FLAGS) -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
 	    cmake --build bin -j$(BUILD_JOBS)
@@ -61,9 +59,7 @@ $(LIBSYMCRYPT):
 	cp -r bin/exe $(DEST)/debug/
 
 $(LIBSYMCRYPTPROVIDER): $(LIBSYMCRYPT)
-	if [ ! -f ../SymCrypt-OpenSSL/cmake-toolchain/LinuxUserMode-ARM.cmake ]; then cp LinuxUserMode-ARM.cmake; fi
 	cd ../SymCrypt-OpenSSL
-	if [ "$(ARCH)" == armhf ] && [ ! -f cmake-toolchain/LinuxUserMode-ARM.cmake ]; then git cherry-pick 8ee9ee42c983b09dc2b9a1dbc4af1c75d92c7e83; fi
 	cp -P $(DEST)/libsymcrypt.so* ./
 	mkdir -p bin
 	cd bin
@@ -72,13 +68,6 @@ $(LIBSYMCRYPTPROVIDER): $(LIBSYMCRYPT)
 	rm ../libsymcrypt.so*
 	cp -a SymCryptProvider/symcryptprovider.so $(LIBSYMCRYPTPROVIDER)
 	cp -a SymCryptEngine/dynamic/symcryptengine.so $(LIBSYMCRYPTENGINE)
-
-$(LIBSYMCRYPTPROVIDER)-bk:
-	wget https://sonicstorage.blob.core.windows.net/public/fips/bookworm/amd64/symcrypt/SymCryptProvider-103.4.0.tar.gz
-	mkdir -p SymCryptProvider
-	tar -xzf SymCryptProvider-103.4.0.tar.gz -C SymCryptProvider
-	cp -a SymCryptProvider/lib/libsymcrypt.so* $(DEST)/
-	cp -a SymCryptProvider/symcryptprovider.so $(DEST)/
 
 $(TARGET): $(DEPENDS)
 	mkdir -p $(INSTALL_PATH)
@@ -93,5 +82,4 @@ $(TARGET): $(DEPENDS)
 	ln -sf ../$(shell basename $(LIBSYMCRYPTENGINE)) $(ENGINES_PATH)/symcryptengine.so
 	cp -rf debian/* $(DEBIAN_DIR)/
 	chmod a+r -R $(INSTALL_PATH)/
-	cp openssl.cnf $(BUILD_ROOT_DIR)/etc/ssl/openssl-fips.cnf
 	fakeroot dpkg-deb --build $(BUILD_ROOT_DIR) $(TARGET)
