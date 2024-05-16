@@ -85,3 +85,19 @@ index cacf637c89..d8aaf13868 100644
  #ifndef OPENSSL_NO_ENGINE
      if ((opts & OPENSSL_INIT_ENGINE_OPENSSL)
              && !RUN_ONCE(&engine_openssl, ossl_init_engine_openssl))
+diff --git a/crypto/engine/eng_table.c b/crypto/engine/eng_table.c
+index 3138a15260..a4807387f6 100644
+--- a/crypto/engine/eng_table.c
++++ b/crypto/engine/eng_table.c
+@@ -87,6 +87,11 @@ int engine_table_register(ENGINE_TABLE **table, ENGINE_CLEANUP_CB *cleanup,
+     int ret = 0, added = 0;
+     ENGINE_PILE tmplate, *fnd;
+ 
++    if (global_engine_lock == NULL){
++        ENGINE* e = ENGINE_new();
++        ENGINE_free(e);
++    }
++
+     if (!CRYPTO_THREAD_write_lock(global_engine_lock))
+         return 0;
+     if (!(*table))
