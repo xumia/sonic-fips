@@ -104,7 +104,7 @@ jobs:
       echo 0 | sudo tee /etc/fips/fips_enable
     condition: and(succeeded(), ne('${{ parameters.arch }}', 'armhf'))
     continueOnError: true
-    displayName: 'Test openssl all tests with fips enabled'
+    displayName: 'Test with fips enabled'
 
   - script: |
       set -ex
@@ -117,7 +117,7 @@ jobs:
         echo 0 | sudo tee /etc/fips/fips_enable
       fi
     condition: and(succeeded(), ne('${{ parameters.arch }}', 'armhf'))
-    displayName: 'Test openssl partial tests with fips enabled'
+    displayName: 'Test and skip known issues'
  
   - script: |
       set -ex

@@ -39,6 +39,6 @@ else
   TESTS=$(cat src/openssl.patch/skipped-openssl-tests.conf | sed 's/^/-/' | xargs)
   pushd src/openssl/build_shared
   make TESTS="$TESTS" test
-  podd
+  popd
   echo 0 | sudo tee /etc/fips/fips_enable
 fi
