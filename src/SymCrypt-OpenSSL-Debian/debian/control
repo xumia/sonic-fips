@@ -6,4 +6,4 @@ Architecture: all
 Depends: openssl (>=3.0)
 Maintainer: SONiC <sonic@microsoft.com>
 Description: symcrypt openssl
- Symcrypt Openssl Provider.
+ Symcrypt Openssl Provider and engine.

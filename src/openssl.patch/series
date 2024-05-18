@@ -1,2 +1,3 @@
 20-support-fips-mode.patch
 30-load-symcrypt-engine-provider.patch
+microsoft-symcrypt-fips.patch 
