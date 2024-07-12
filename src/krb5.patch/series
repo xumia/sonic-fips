@@ -1,1 +1,3 @@
 90-support-openssl-crypto-impl.patch
+CVE-2024-37370
+changelog-1.18.3-6+deb11u5.patch
