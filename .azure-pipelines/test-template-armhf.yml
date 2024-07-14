@@ -41,8 +41,8 @@ jobs:
     displayName: 'Show download pacakges'
   - script: |
       set -ex
-      docker run --rm --privileged  publicmirror.azurecr.io/multiarch/qemu-user-static:register --reset --credential yes
-      docker image rm publicmirror.azurecr.io/multiarch/qemu-user-static:register
+      sudo docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+      docker image rm multiarch/qemu-user-static
       pushd .azure-pipelines
       DEFAULT_CONTAINER_REGISTRY=publicmirror.azurecr.io/ ARCH=${{ parameters.arch }} DIST=${{ parameters.dist }} j2 Dockerfile.j2 > Dockerfile
       docker build --build-arg user=$USER --build-arg uid=$(id -u) --build-arg guid=$(id -g) --build-arg hostname=$HOSTNAME -t build-agent .

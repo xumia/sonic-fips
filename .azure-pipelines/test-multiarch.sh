@@ -5,7 +5,6 @@ set -ex
 export ARCH=armhf
 
 # Install packages
-apt-get update && apt-get install -y sudo
 sudo mkdir -p $HOME
 
 # Make SymCrypt and OpenSSL
