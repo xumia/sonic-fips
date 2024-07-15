@@ -93,6 +93,7 @@ jobs:
       set -ex
       sudo mkdir -p /etc/fips
       echo 1 | sudo tee /etc/fips/fips_enable
+      echo 40-Modify-tests-with-unsupported-behavior.patch >> src/openssl.patch/series
       openssl engine -v | grep -i symcrypt
       openssl list --providers | grep -i symcrypt
       pushd src/openssl

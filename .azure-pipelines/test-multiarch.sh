@@ -5,7 +5,6 @@ set -ex
 export ARCH=armhf
 
 # Install packages
-apt-get update && apt-get install -y sudo
 sudo mkdir -p $HOME
 
 # Make SymCrypt and OpenSSL
@@ -32,6 +31,7 @@ popd
 
 # Build the OpenSSL again with SymCrypt enabled
 rm -f src/openssl/test/recipes/30-test_afalg.t
+echo 40-Modify-tests-with-unsupported-behavior.patch >> src/openssl.patch/series
 if TARGET_PATH=target-test make openssl; then
   echo "OpenSSL tests succeeded"
 else
