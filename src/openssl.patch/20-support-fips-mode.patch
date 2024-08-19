@@ -1,8 +1,8 @@
 diff --git a/crypto/init.c b/crypto/init.c
-index cacf637c89..d8aaf13868 100644
+index cacf637c89..baa1f82f43 100644
 --- a/crypto/init.c
 +++ b/crypto/init.c
-@@ -277,6 +277,72 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_async)
+@@ -277,6 +277,74 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_async)
      return 1;
  }
  
@@ -61,11 +61,13 @@ index cacf637c89..d8aaf13868 100644
 +    g_fips_mode_enabled = 0;
 +    if (ossl_fips_enabled_by_cmd() > 0){
 +        g_fips_mode_enabled = 1;
++        putenv("sonic_fips=1");
 +        return 1;
 +    }
 +
 +    if (ossl_fips_enabled_by_conf() > 0){
 +        g_fips_mode_enabled = 1;
++        putenv("sonic_fips=1");
 +        return 1;
 +    }
 +
@@ -75,7 +77,7 @@ index cacf637c89..d8aaf13868 100644
  #ifndef OPENSSL_NO_ENGINE
  static CRYPTO_ONCE engine_openssl = CRYPTO_ONCE_STATIC_INIT;
  DEFINE_RUN_ONCE_STATIC(ossl_init_engine_openssl)
-@@ -605,6 +671,9 @@ int OPENSSL_init_crypto(uint64_t opts, const OPENSSL_INIT_SETTINGS *settings)
+@@ -605,6 +673,9 @@ int OPENSSL_init_crypto(uint64_t opts, const OPENSSL_INIT_SETTINGS *settings)
              && !RUN_ONCE(&async, ossl_init_async))
          return 0;
  
