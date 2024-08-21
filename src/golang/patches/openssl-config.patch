@@ -1,5 +1,5 @@
 diff --git a/src/vendor/github.com/golang-fips/openssl-fips/openssl/goopenssl.h b/src/vendor/github.com/golang-fips/openssl-fips/openssl/goopenssl.h
-index 23f1f5c58c..3852715eb1 100644
+index 23f1f5c58c..00ec64431f 100644
 --- a/src/vendor/github.com/golang-fips/openssl-fips/openssl/goopenssl.h
 +++ b/src/vendor/github.com/golang-fips/openssl-fips/openssl/goopenssl.h
 @@ -83,9 +83,15 @@ static unsigned long _goboringcrypto_internal_OPENSSL_VERSION_NUMBER(void) {
@@ -18,3 +18,14 @@ index 23f1f5c58c..3852715eb1 100644
  }
  
  #include <openssl/err.h>
+@@ -147,6 +153,10 @@ DEFINEFUNC(int, FIPS_mode_set, (int r), (r))
+ #else
+ DEFINEFUNC(int, EVP_default_properties_is_fips_enabled, (OSSL_LIB_CTX *libctx), (libctx))
+ static inline int _goboringcrypto_FIPS_mode(void) {
++	const char *fips = getenv("sonic_fips");
++	if (fips != NULL && strcmp(fips, "1")){
++		return 1;
++	}
+ 	return _goboringcrypto_EVP_default_properties_is_fips_enabled(NULL);
+ }
+ #endif
