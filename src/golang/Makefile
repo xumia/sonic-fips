@@ -13,16 +13,12 @@ all: $(MAIN_TARGET)
 
 $(MAIN_TARGET):
 	cd ../golang-fips
-	cp ../golang/patches/openssl-config.patch patches/999-openssl-config.patch
 	scripts/full-initialize-repo.sh $(GOLANGT_TAG)
 	cp -r ../golang-debian/debian go/
 	cd go
 	sed -i "s/$(GOLANG_VERSOIN)/$(GOLANG_VERSOIN)+fips/" debian/changelog
-	#cp ../../golang/patches/*.patch debian/patches/
-	#comm -23 --nocheck-order ../../golang/patches/series debian/patches/series >> debian/patches/series
-	#QUILT_REFRESH_ARGS="-p ab --no-timestamps --no-index" QUILT_PATCHES=debian/patches quilt push -a
-	#git add src
-	#git commit -m "Add patch"
+	cp ../../golang/patches/*.patch debian/patches/
+	comm -23 --nocheck-order ../../golang/patches/series debian/patches/series >> debian/patches/series
 	dpkg-buildpackage -b -d -rfakeroot -us -uc
 	cp ../*.deb $(DEST)
 
